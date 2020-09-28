@@ -1,0 +1,39 @@
+{
+  "state": {
+    "network_key": "42-staging",
+    "human_friendly_name": "kovan-staging",
+    "network_id": 42
+  },
+  "addresses": {
+    "IndexDAO": "0xF994939576bb6E9d8bBbD6c9Dd7761390Dc20ac2",
+    "MerkleDistributor": "0xd99f74a36fAf0ceDA323adb91C59D98C59DD6dE3",
+    "StakingRewards": "0xcF96c0c01F7e0e1539EA00833e02eb844E650B90"
+  },
+  "transactions": {
+    "0": {
+      "id": "0x38e055a42026e95b954295ac4631a37b831a68dfab9a5d9dc44e178be419d8ae",
+      "timestamp": 1601339104229,
+      "description": "Deployed IndexDAO"
+    },
+    "1": {
+      "id": "0x5ffac111ef2e855cf7212829a398a460d1add4b8a9ce9544514a7229b1c470b2",
+      "timestamp": 1601339112022,
+      "description": "Deployed MerkleDistributor"
+    },
+    "2": {
+      "id": "0xff562635f04347d05f8505759915008acedb9fbbaaac5be1a8212a74900a5842",
+      "timestamp": 1601339119639,
+      "description": "Deployed StakingRewards"
+    },
+    "3": {
+      "id": "0x0fb60474c27d8234d1d3802ee3e4c8d9a8babfea09130044e8640f6b515db6e0",
+      "timestamp": 1601339128376,
+      "description": "Transferred INDEX to Merkle Distributor"
+    },
+    "4": {
+      "id": "0x65c115721ff0fb6fb3fc3f09c3b3cccba09cee9fdfc6eaecf3473a592c7eebb8",
+      "timestamp": 1601339135636,
+      "description": "Transferred INDEX to Uniswap LP StakingRewards"
+    }
+  }
+}
