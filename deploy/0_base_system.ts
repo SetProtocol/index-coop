@@ -27,6 +27,8 @@ const EMPTY_ARGS: any[] = [];
 const merkleRoot = ZERO_BYTES; // Merkle root TBD
 const uniswapLPRewardAmount = ether(900000); // 900k tokens; 9% supply
 const merkleDistributorAmount = ether(100000); // 100k tokens; 1% supply
+const daoOwnershipAmount = ether(6000000); // 6m tokens; 60% supply
+const setLabsVestingAmount = ether(3000000); // 3m tokens; 30% supply
 
 const func: DeployFunction = async function (bre: BuidlerRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = bre;
@@ -75,22 +77,24 @@ const func: DeployFunction = async function (bre: BuidlerRuntimeEnvironment) {
     uniswapLPReward = deployer;
   }
 
-  let rewardDistributor;
+  let ownerAddress;
   if (networkConstant === "production") {
-    rewardDistributor = await findDependency("MULTI_SIG_OWNER");
+    ownerAddress = await findDependency("SET_LABS");
   } else {
-    rewardDistributor = deployer;
+    ownerAddress = deployer;
   }
   const checkStakingRewardsAddress = await getContractAddress("StakingRewards");
   if (checkStakingRewardsAddress === "") {
     const stakingRewardsDeploy = await deploy(
       "StakingRewards",
-      { from: deployer, args: [rewardDistributor, indexDAOAddress, uniswapLPReward], log: true }
+      { from: deployer, args: [ownerAddress, indexDAOAddress, uniswapLPReward], log: true }
     );
     await writeContractAndTransactionToOutputs("StakingRewards", stakingRewardsDeploy.address, stakingRewardsDeploy.receipt.transactionHash, "Deployed StakingRewards");
   }
   const stakingRewardsAddress = await getContractAddress("StakingRewards");
   
+  // TODO deploy vesting contracts
+
   // Transfer tokens to Merkle Distributor contract
   const indexDAOToken = await new IndexDaoFactory(ownerWallet).attach(indexDAOAddress);
   
@@ -125,7 +129,49 @@ const func: DeployFunction = async function (bre: BuidlerRuntimeEnvironment) {
     await writeTransactionToOutputs(transferToStakingRewardHash.transactionHash, "Transferred INDEX to Uniswap LP StakingRewards");
   }
 
-  // TODO transfer tokens to vesting contract / multisig
+  // Transfer tokens to DAO multisig
+  let daoMultisigAddress;
+  if (networkConstant === "production") {
+    daoMultisigAddress = await findDependency("DAO_MULTI_SIG");
+  } else {
+    daoMultisigAddress = deployer;
+  }
+  const daoOwnerBalance = await indexDAOToken.balanceOf(daoMultisigAddress);
+  if (daoOwnerBalance.eq(0)) {
+    const transferToDAOOwnerData = indexDAOToken.interface.functions.transfer.encode([
+      daoMultisigAddress,
+      daoOwnershipAmount
+    ]);
+    const transferToDAOOwnerHash: any = await rawTx({
+      from: deployer,
+      to: indexDAOToken.address,
+      data: transferToDAOOwnerData,
+      log: true,
+    });
+    await writeTransactionToOutputs(transferToDAOOwnerHash.transactionHash, "Transferred INDEX to DAO address");
+  }
+
+  // TODO Transfer tokens to Set Labs vesting
+  // let setLabsVestingAddress;
+  // if (networkConstant === "production") {
+  //   setLabsVestingAddress = await findDependency("SET_LABS"); // TO BE UPDATED
+  // } else {
+  //   setLabsVestingAddress = deployer;
+  // }
+  // const setLabsBalance = await indexDAOToken.balanceOf(setLabsVestingAddress);
+  // if (setLabsBalance.eq(0)) {
+  //   const transferToSetLabsData = indexDAOToken.interface.functions.transfer.encode([
+  //     setLabsVestingAddress,
+  //     setLabsVestingAmount
+  //   ]);
+  //   const transferToSetLabsHash: any = await rawTx({
+  //     from: deployer,
+  //     to: indexDAOToken.address,
+  //     data: transferToSetLabsData,
+  //     log: true,
+  //   });
+  //   await writeTransactionToOutputs(transferToSetLabsHash.transactionHash, "Transferred INDEX to Set Labs address for vesting");
+  // }
 };
 export default func;
 

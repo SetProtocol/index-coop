@@ -13,7 +13,10 @@ export default {
 
   // Admin
 
-  MULTI_SIG_OWNER: {
+  DAO_MULTI_SIG: {
+    1: "",
+  },
+  SET_LABS: {
     1: "0xF8523c551763FE4261A28313015267F163de7541",
   },
   HUMAN_FRIENDLY_NAMES: {
