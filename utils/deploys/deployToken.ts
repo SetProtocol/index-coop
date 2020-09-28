@@ -1,7 +1,7 @@
 import { Signer } from "ethers";
 import { BigNumber } from "ethers/utils";
 import { Address } from "../types";
-import { IndexDao, MerkleDistributor } from "../contracts";
+import { IndexDao, MerkleDistributor, Vesting } from "../contracts";
 
 import { IndexDaoFactory } from "../../typechain/IndexDaoFactory";
 import { MerkleDistributorFactory } from "../../typechain/MerkleDistributorFactory";
@@ -29,7 +29,7 @@ export default class DeployToken {
     vestingBegin: BigNumber,
     vestingCliff: BigNumber,
     vestingEnd: BigNumber
-  ): Promise<MerkleDistributor> {
+  ): Promise<Vesting> {
     return await new VestingFactory(this._deployerSigner).deploy(
       token,
       recipient,
