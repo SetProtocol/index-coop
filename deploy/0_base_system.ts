@@ -17,18 +17,37 @@ import {
   writeContractAndTransactionToOutputs,
   writeTransactionToOutputs
 } from "@utils/deploys/output-helper";
-import { ether } from "@utils/unitsUtils";
+import { ether, parseBalanceMap } from "@utils/index";
 import { IndexDaoFactory } from "../typechain/IndexDaoFactory";
 
-import { Account } from "@utils/types";
+import { Account, DistributionFormat } from "@utils/types";
 
 const EMPTY_ARGS: any[] = [];
 
-const merkleRoot = ZERO_BYTES; // Merkle root TBD
+const distributionArray: DistributionFormat[] = [
+  {
+    address: "0xe3a1340Be2B4c8dE9E20ab185CfF37480521D9Af",
+    earnings: ether(1)
+  }
+]; // TBD
+const merkleRootObject = parseBalanceMap(distributionArray); // Merkle root object
 const uniswapLPRewardAmount = ether(900000); // 900k tokens; 9% supply
 const merkleDistributorAmount = ether(100000); // 100k tokens; 1% supply
 const daoOwnershipAmount = ether(6000000); // 6m tokens; 60% supply
-const setLabsVestingAmount = ether(3000000); // 3m tokens; 30% supply
+const setLabsVestingAmount = ether(2850000); // 2.85m tokens; 28.5% supply
+const dfpVestingAmount = ether(150000); // 150k tokens; 1.5% supply
+
+// Vesting parameters
+const vestingBegin = new BigNumber(1601406234); // TBD
+
+const daoVestingCliff = new BigNumber(1601406234); // TBD
+const daoVestingEnd = new BigNumber(1601406235); // TBD
+
+const setLabsVestingCliff = new BigNumber(1601406234); // TBD
+const setLabsVestingEnd = new BigNumber(1601406235); // TBD
+
+const dfpVestingCliff = new BigNumber(1601406234); // TBD
+const dfpVestingEnd = new BigNumber(1601406235); // TBD
 
 const func: DeployFunction = async function (bre: BuidlerRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = bre;
@@ -49,6 +68,33 @@ const func: DeployFunction = async function (bre: BuidlerRuntimeEnvironment) {
 
   await ensureOutputsFile();
 
+  // Retrieve dependencies
+  let uniswapLPReward = await findDependency("DPI_ETH_UNI_POOL");
+  if (uniswapLPReward === "") {
+    uniswapLPReward = deployer;
+  }
+
+  let setLabsAddress;
+  if (networkConstant === "production") {
+    setLabsAddress = await findDependency("SET_LABS");
+  } else {
+    setLabsAddress = deployer;
+  }
+
+  let daoMultisigAddress;
+  if (networkConstant === "production") {
+    daoMultisigAddress = await findDependency("DAO_MULTI_SIG");
+  } else {
+    daoMultisigAddress = deployer;
+  }
+
+  let dfpMultisigAddress;
+  if (networkConstant === "production") {
+    dfpMultisigAddress = await findDependency("DFP_MULTI_SIG");
+  } else {
+    dfpMultisigAddress = deployer;
+  }
+
   // Deploy INDEX token
   const checkIndexDAOAddress = await getContractAddress("IndexDAO");
   if (checkIndexDAOAddress === "") {
@@ -65,35 +111,55 @@ const func: DeployFunction = async function (bre: BuidlerRuntimeEnvironment) {
   if (checkMerkleDistributorAddress === "") {
     const merkleDistributorDeploy = await deploy(
       "MerkleDistributor",
-      { from: deployer, args: [indexDAOAddress, merkleRoot], log: true }
+      { from: deployer, args: [indexDAOAddress, merkleRootObject.merkleRoot], log: true }
     );
     await writeContractAndTransactionToOutputs("MerkleDistributor", merkleDistributorDeploy.address, merkleDistributorDeploy.receipt.transactionHash, "Deployed MerkleDistributor");
   }
   const merkleDistributorAddress = await getContractAddress("MerkleDistributor");
 
   // Deploy Uniswap LP staking rewards contract
-  let uniswapLPReward = await findDependency("DPI_ETH_UNI_POOL");
-  if (uniswapLPReward === "") {
-    uniswapLPReward = deployer;
-  }
-
-  let ownerAddress;
-  if (networkConstant === "production") {
-    ownerAddress = await findDependency("SET_LABS");
-  } else {
-    ownerAddress = deployer;
-  }
   const checkStakingRewardsAddress = await getContractAddress("StakingRewards");
   if (checkStakingRewardsAddress === "") {
     const stakingRewardsDeploy = await deploy(
       "StakingRewards",
-      { from: deployer, args: [ownerAddress, indexDAOAddress, uniswapLPReward], log: true }
+      { from: deployer, args: [setLabsAddress, indexDAOAddress, uniswapLPReward], log: true }
     );
     await writeContractAndTransactionToOutputs("StakingRewards", stakingRewardsDeploy.address, stakingRewardsDeploy.receipt.transactionHash, "Deployed StakingRewards");
   }
   const stakingRewardsAddress = await getContractAddress("StakingRewards");
   
-  // TODO deploy vesting contracts
+  // Deploy DAO treasury vesting contract
+  const checkDAOVestingAddress = await getContractAddress("DAOVesting");
+  if (checkDAOVestingAddress === "") {
+    const daoVestingDeploy = await deploy(
+      "Vesting",
+      { from: deployer, args: [indexDAOAddress, daoMultisigAddress, daoOwnershipAmount, vestingBegin, daoVestingCliff, daoVestingEnd], log: true }
+    );
+    await writeContractAndTransactionToOutputs("DAOVesting", daoVestingDeploy.address, daoVestingDeploy.receipt.transactionHash, "Deployed DAO Vesting");
+  }
+  const daoVestingAddress = await getContractAddress("DAOVesting");
+
+  // Deploy Set Labs vesting contract
+  const checkSetLabsVestingAddress = await getContractAddress("SetLabsVesting");
+  if (checkSetLabsVestingAddress === "") {
+    const setLabsVestingDeploy = await deploy(
+      "Vesting",
+      { from: deployer, args: [indexDAOAddress, setLabsAddress, setLabsVestingAmount, vestingBegin, setLabsVestingCliff, setLabsVestingEnd], log: true }
+    );
+    await writeContractAndTransactionToOutputs("SetLabsVesting", setLabsVestingDeploy.address, setLabsVestingDeploy.receipt.transactionHash, "Deployed Set Labs Vesting");
+  }
+  const setLabsVestingAddress = await getContractAddress("SetLabsVesting");
+
+  // Deploy DFP vesting contract
+  const checkDFPVestingAddress = await getContractAddress("DFPVesting");
+  if (checkDFPVestingAddress === "") {
+    const dfpVestingDeploy = await deploy(
+      "Vesting",
+      { from: deployer, args: [indexDAOAddress, dfpMultisigAddress, dfpVestingAmount, vestingBegin, dfpVestingCliff, dfpVestingEnd], log: true }
+    );
+    await writeContractAndTransactionToOutputs("DFPVesting", dfpVestingDeploy.address, dfpVestingDeploy.receipt.transactionHash, "Deployed DFP Vesting");
+  }
+  const dfpVestingAddress = await getContractAddress("DFPVesting");
 
   // Transfer tokens to Merkle Distributor contract
   const indexDAOToken = await new IndexDaoFactory(ownerWallet).attach(indexDAOAddress);
@@ -129,17 +195,11 @@ const func: DeployFunction = async function (bre: BuidlerRuntimeEnvironment) {
     await writeTransactionToOutputs(transferToStakingRewardHash.transactionHash, "Transferred INDEX to Uniswap LP StakingRewards");
   }
 
-  // Transfer tokens to DAO multisig
-  let daoMultisigAddress;
-  if (networkConstant === "production") {
-    daoMultisigAddress = await findDependency("DAO_MULTI_SIG");
-  } else {
-    daoMultisigAddress = deployer;
-  }
-  const daoOwnerBalance = await indexDAOToken.balanceOf(daoMultisigAddress);
+  // Transfer tokens to DAO vesting contract
+  const daoOwnerBalance = await indexDAOToken.balanceOf(daoVestingAddress);
   if (daoOwnerBalance.eq(0)) {
     const transferToDAOOwnerData = indexDAOToken.interface.functions.transfer.encode([
-      daoMultisigAddress,
+      daoVestingAddress,
       daoOwnershipAmount
     ]);
     const transferToDAOOwnerHash: any = await rawTx({
@@ -148,30 +208,40 @@ const func: DeployFunction = async function (bre: BuidlerRuntimeEnvironment) {
       data: transferToDAOOwnerData,
       log: true,
     });
-    await writeTransactionToOutputs(transferToDAOOwnerHash.transactionHash, "Transferred INDEX to DAO address");
+    await writeTransactionToOutputs(transferToDAOOwnerHash.transactionHash, "Transferred INDEX to DAO vesting contract");
   }
 
-  // TODO Transfer tokens to Set Labs vesting
-  // let setLabsVestingAddress;
-  // if (networkConstant === "production") {
-  //   setLabsVestingAddress = await findDependency("SET_LABS"); // TO BE UPDATED
-  // } else {
-  //   setLabsVestingAddress = deployer;
-  // }
-  // const setLabsBalance = await indexDAOToken.balanceOf(setLabsVestingAddress);
-  // if (setLabsBalance.eq(0)) {
-  //   const transferToSetLabsData = indexDAOToken.interface.functions.transfer.encode([
-  //     setLabsVestingAddress,
-  //     setLabsVestingAmount
-  //   ]);
-  //   const transferToSetLabsHash: any = await rawTx({
-  //     from: deployer,
-  //     to: indexDAOToken.address,
-  //     data: transferToSetLabsData,
-  //     log: true,
-  //   });
-  //   await writeTransactionToOutputs(transferToSetLabsHash.transactionHash, "Transferred INDEX to Set Labs address for vesting");
-  // }
+  // Transfer tokens to Set Labs vesting contract
+  const setLabsBalance = await indexDAOToken.balanceOf(setLabsVestingAddress);
+  if (setLabsBalance.eq(0)) {
+    const transferToSetLabsData = indexDAOToken.interface.functions.transfer.encode([
+      setLabsVestingAddress,
+      setLabsVestingAmount
+    ]);
+    const transferToSetLabsHash: any = await rawTx({
+      from: deployer,
+      to: indexDAOToken.address,
+      data: transferToSetLabsData,
+      log: true,
+    });
+    await writeTransactionToOutputs(transferToSetLabsHash.transactionHash, "Transferred INDEX to Set Labs vesting contract");
+  }
+
+  // Transfer tokens to DFP vesting contract
+  const dfpBalance = await indexDAOToken.balanceOf(dfpVestingAddress);
+  if (dfpBalance.eq(0)) {
+    const transferToDFPData = indexDAOToken.interface.functions.transfer.encode([
+      dfpVestingAddress,
+      dfpVestingAmount
+    ]);
+    const transferToDFPHash: any = await rawTx({
+      from: deployer,
+      to: indexDAOToken.address,
+      data: transferToDFPData,
+      log: true,
+    });
+    await writeTransactionToOutputs(transferToDFPHash.transactionHash, "Transferred INDEX to DFP vesting contract");
+  }
 };
 export default func;
 

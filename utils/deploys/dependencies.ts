@@ -19,6 +19,9 @@ export default {
   SET_LABS: {
     1: "0xF8523c551763FE4261A28313015267F163de7541",
   },
+  DFP_MULTI_SIG: {
+    1: "",
+  },
   HUMAN_FRIENDLY_NAMES: {
     1: "main-net",
     42: "kovan",
