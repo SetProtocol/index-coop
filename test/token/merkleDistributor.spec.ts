@@ -1,7 +1,7 @@
 import "module-alias/register";
 import { BigNumber } from "ethers/utils";
 
-import { Address, Account, MerkleDistributorInfo } from "@utils/types";
+import { Address, Account, DistributionFormat, MerkleDistributorInfo } from "@utils/types";
 import { ZERO } from "@utils/constants";
 import { IndexDao, MerkleDistributor } from "@utils/contracts";
 import DeployHelper from "@utils/deploys";
@@ -130,8 +130,8 @@ describe.only("MerkleDistributor", () => {
 
     before(async () => {
       treeInfo =  parseBalanceMap([
-        { address: walletOne.address, earnings: ether(1000) },
-        { address: walletTwo.address, earnings: ether(900) },
+        { address: walletOne.address, earnings: ether(1000) } as DistributionFormat,
+        { address: walletTwo.address, earnings: ether(900) } as DistributionFormat,
       ]);
     });
 
