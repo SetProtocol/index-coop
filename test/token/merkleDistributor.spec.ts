@@ -1,8 +1,7 @@
 import "module-alias/register";
 import { BigNumber } from "ethers/utils";
-import { ethers } from "@nomiclabs/buidler";
 
-import { Address, Account } from "@utils/types";
+import { Address, Account, MerkleDistributorInfo } from "@utils/types";
 import { ZERO } from "@utils/constants";
 import { IndexDao, MerkleDistributor } from "@utils/contracts";
 import DeployHelper from "@utils/deploys";
@@ -12,12 +11,13 @@ import {
   ether,
   getAccounts,
   getWaffleExpect,
+  parseBalanceMap,
 } from "@utils/index";
 import { ContractTransaction } from "ethers";
 
 const expect = getWaffleExpect();
 
-describe("MerkleDistributor", () => {
+describe.only("MerkleDistributor", () => {
   let owner: Account;
   let walletOne: Account;
   let walletTwo: Account;
@@ -30,7 +30,7 @@ describe("MerkleDistributor", () => {
     [
       owner,
       walletOne,
-      walletTwo
+      walletTwo,
     ] = await getAccounts();
 
     deployer = new DeployHelper(owner.wallet);
@@ -48,7 +48,7 @@ describe("MerkleDistributor", () => {
       const tree = new BalanceTree([
         { account: walletOne.address, amount: ether(1000) },
         { account: walletTwo.address, amount: ether(900) },
-      ])
+      ]);
 
       subjectToken = token.address;
       subjectMerkleRoot = tree.getHexRoot();
@@ -75,7 +75,7 @@ describe("MerkleDistributor", () => {
 
   describe("#isClaimed", async () => {
     let tree: BalanceTree;
-    
+
     let subjectIndex: BigNumber;
 
     before(async () => {
@@ -84,7 +84,7 @@ describe("MerkleDistributor", () => {
         { account: walletTwo.address, amount: ether(900) },
       ]);
     });
-    
+
     beforeEach(async () => {
       distributor = await deployer.token.deployMerkleDistributor(token.address, tree.getHexRoot());
       await token.connect(owner.wallet).transfer(distributor.address, ether(1900));
@@ -121,37 +121,37 @@ describe("MerkleDistributor", () => {
   });
 
   describe("#claim", async () => {
-    let tree: BalanceTree;
-    
+    let treeInfo: MerkleDistributorInfo;
+
     let subjectIndex: BigNumber;
     let subjectAccount: Address;
     let subjectAmount: BigNumber;
     let subjectMerkleProof: string[];
 
     before(async () => {
-      tree = new BalanceTree([
-        { account: walletOne.address, amount: ether(1000) },
-        { account: walletTwo.address, amount: ether(900) },
+      treeInfo =  parseBalanceMap([
+        { address: walletOne.address, earnings: ether(1000) },
+        { address: walletTwo.address, earnings: ether(900) },
       ]);
     });
-    
+
     beforeEach(async () => {
-      distributor = await deployer.token.deployMerkleDistributor(token.address, tree.getHexRoot());
+      distributor = await deployer.token.deployMerkleDistributor(token.address, treeInfo.merkleRoot);
       await token.connect(owner.wallet).transfer(distributor.address, ether(1900));
 
       subjectIndex = ZERO;
       subjectAccount = walletOne.address;
       subjectAmount = ether(1000);
-      subjectMerkleProof = tree.getProof(subjectIndex, subjectAccount, subjectAmount);
+      subjectMerkleProof = treeInfo.claims[subjectAccount].proof;
     });
 
-    async function subject(): Promise<any> {
+    async function subject(): Promise<ContractTransaction> {
       return await distributor.claim(subjectIndex, subjectAccount, subjectAmount, subjectMerkleProof);
     }
 
     it("should set the correct token address", async () => {
       const preTokenBalance = await token.balanceOf(subjectAccount);
-      
+
       await subject();
 
       const postTokenBalance = await token.balanceOf(subjectAccount);
@@ -177,7 +177,7 @@ describe("MerkleDistributor", () => {
 
     describe("when submitted proof is invalid", async () => {
       beforeEach(async () => {
-        subjectMerkleProof = tree.getProof(new BigNumber(1), walletTwo.address, ether(900));
+        subjectMerkleProof = treeInfo.claims[walletTwo.address].proof;
       });
 
       it("should revert", async () => {
