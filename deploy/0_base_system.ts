@@ -24,12 +24,17 @@ import { Account, DistributionFormat } from "@utils/types";
 
 const EMPTY_ARGS: any[] = [];
 
+// MOCK DISTRIBUTION
 const distributionArray: DistributionFormat[] = [
   {
     address: "0xe3a1340Be2B4c8dE9E20ab185CfF37480521D9Af",
     earnings: ether(1)
+  },
+  {
+    address: "0x64cf6e538ce757645a953376c0f1be6fab8a2e09",
+    earnings: ether(1)
   }
-]; // TBD
+];
 const merkleRootObject = parseBalanceMap(distributionArray); // Merkle root object
 const uniswapLPRewardAmount = ether(900000); // 900k tokens; 9% supply
 const merkleDistributorAmount = ether(100000); // 100k tokens; 1% supply
@@ -67,6 +72,8 @@ const func: DeployFunction = async function (bre: BuidlerRuntimeEnvironment) {
   }
 
   await ensureOutputsFile();
+
+  // console.log(merkleRootObject.claims["0xe3a1340Be2B4c8dE9E20ab185CfF37480521D9Af"]);
 
   // Retrieve dependencies
   let uniswapLPReward = await findDependency("DPI_ETH_UNI_POOL");

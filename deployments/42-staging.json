@@ -6,11 +6,11 @@
   },
   "addresses": {
     "IndexDAO": "0x797029d8a74AD7a0ac5480597796a8452d968aeB",
-    "MerkleDistributor": "0x58fcD4E50b0fbeD216DbD165aE9A7fB906Ee4CD0",
     "StakingRewards": "0x4ec6B21f86ED81329091F46627CD2d09D5F711f3",
     "DAOVesting": "0xECc449e9495Ea1B2065BC6f2f24e57748c565297",
     "SetLabsVesting": "0x3481a470Db611Dc2525c17c5a63EeCFBE01abE19",
-    "DFPVesting": "0x5cF10B688e822Ef12Cf8d3B1B10C6f76963663e6"
+    "DFPVesting": "0x5cF10B688e822Ef12Cf8d3B1B10C6f76963663e6",
+    "MerkleDistributor": "0x3961E5a9C3e82467eCe164abc3f60d139B89d486"
   },
   "transactions": {
     "0": {
@@ -67,6 +67,16 @@
       "id": "0x40eb6990e06d8ca31fe4c66e36f477d40d7cdd867afcb94f0da8cc32f705a063",
       "timestamp": 1601406232426,
       "description": "Transferred INDEX to DFP vesting contract"
+    },
+    "11": {
+      "id": "0xbfedd79673af09554021b4b92e19d10968225971ac884359a42f019fb8cb6d31",
+      "timestamp": 1601424703415,
+      "description": "Deployed MerkleDistributor"
+    },
+    "12": {
+      "id": "0xf26259aed3bf17ea4f1b172bc2ab38acecedb3b46b3a7f7948895ef0d5dc9526",
+      "timestamp": 1601425332915,
+      "description": "Transferred INDEX to Merkle Distributor"
     }
   }
 }
