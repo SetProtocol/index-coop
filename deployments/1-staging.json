@@ -1,0 +1,72 @@
+{
+  "state": {
+    "network_key": "1-staging",
+    "human_friendly_name": "main-net-staging",
+    "network_id": 1
+  },
+  "addresses": {
+    "IndexDAO": "0xcF96c0c01F7e0e1539EA00833e02eb844E650B90",
+    "MerkleDistributor": "0xB8E9ad9cABFee1dbdf0D8dBc03eBBCe4b85c0aFa",
+    "StakingRewards": "0x3660c05090B15846Ae69928ED83C3778de3CB04A",
+    "DAOVesting": "0xdF8Bb898488E99e0317e75e15B1B5890736a7576",
+    "SetLabsVesting": "0xbfB88324cD320EAbb878e88AD4562DAF9D9aec0B",
+    "DFPVesting": "0x7b3eb4d0956165E1e4B95787Cd88916C072e7c66"
+  },
+  "transactions": {
+    "0": {
+      "id": "0x99e9ca0d0fbf83a4be82d5df68fba1202689d4dc5974372de2e956fe49064388",
+      "timestamp": 1601663096357,
+      "description": "Deployed IndexDAO"
+    },
+    "1": {
+      "id": "0xb10e0db8b73a0a35080d147a97dc45a17d4fcdc9326c9173cec493e8dec74db6",
+      "timestamp": 1601663126032,
+      "description": "Deployed MerkleDistributor"
+    },
+    "2": {
+      "id": "0x1cc33639c64fab8af59ded570ecc2c132c62c0efa7b4744c25c3899d9bb9b9d4",
+      "timestamp": 1601663140238,
+      "description": "Deployed StakingRewards"
+    },
+    "3": {
+      "id": "0xcf250a3fa40813e39041bd1a1bb5b45d8350d6ed7e25c7e45edd82ba9ad657d0",
+      "timestamp": 1601664976365,
+      "description": "Deployed DAO Vesting"
+    },
+    "4": {
+      "id": "0xe6ae4b60ebf73bb1dc904eb14d9020d533182053b1814d55d7b3172587a7727a",
+      "timestamp": 1601664991686,
+      "description": "Deployed Set Labs Vesting"
+    },
+    "5": {
+      "id": "0xf5ecb8888a8440716831d43d3617b0d3e32e3a19bf09fc56d977764d2b4e296f",
+      "timestamp": 1601665012259,
+      "description": "Deployed DFP Vesting"
+    },
+    "6": {
+      "id": "0x1bc385a8802d9d207704f0639fbc85ef13432a2d5db24f5a472f8605d461a88a",
+      "timestamp": 1601665056083,
+      "description": "Transferred INDEX to Merkle Distributor"
+    },
+    "7": {
+      "id": "0xb45c46a6af53ba65719a2f8959a9b30505c7acdb5efbf3751ab34752a3ca9066",
+      "timestamp": 1601665066241,
+      "description": "Transferred INDEX to Uniswap LP StakingRewards"
+    },
+    "8": {
+      "id": "0x3971e8aa5b4d5f35a742224aaa296bed03ec64b009a063c95b9d2a296fc17e49",
+      "timestamp": 1601665102959,
+      "description": "Transferred INDEX to DAO vesting contract"
+    },
+    "9": {
+      "id": "0x18dc956b05308ea7fa30fb29d542217ebcc59e83ee73dee217b132aecceb4926",
+      "timestamp": 1601665112658,
+      "description": "Transferred INDEX to Set Labs vesting contract"
+    },
+    "10": {
+      "id": "0x37044961830559b1908a54c0eca0077d1307c6f80f651604a8b30f1cf38542f5",
+      "timestamp": 1601665183325,
+      "description": "Transferred INDEX to DFP vesting contract"
+    }
+  }
+}

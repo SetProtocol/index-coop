@@ -10,7 +10,8 @@
     "DAOVesting": "0xECc449e9495Ea1B2065BC6f2f24e57748c565297",
     "SetLabsVesting": "0x3481a470Db611Dc2525c17c5a63EeCFBE01abE19",
     "DFPVesting": "0x5cF10B688e822Ef12Cf8d3B1B10C6f76963663e6",
-    "MerkleDistributor": "0x3961E5a9C3e82467eCe164abc3f60d139B89d486"
+    "MerkleDistributor - DEPRECATED": "0x3961E5a9C3e82467eCe164abc3f60d139B89d486",
+    "MerkleDistributor": "0xaE6dCbcAcc7fE0b8da020e69b5edd5De6Da75f91"
   },
   "transactions": {
     "0": {
@@ -76,6 +77,16 @@
     "12": {
       "id": "0xf26259aed3bf17ea4f1b172bc2ab38acecedb3b46b3a7f7948895ef0d5dc9526",
       "timestamp": 1601425332915,
+      "description": "Transferred INDEX to Merkle Distributor"
+    },
+    "13": {
+      "id": "0x3d12cc75f890a120542cd0f4420cc2ddfd96894aa1708d364f1cc1b2e77543b5",
+      "timestamp": 1601492691803,
+      "description": "Deployed MerkleDistributor"
+    },
+    "14": {
+      "id": "0x3b468f82509902eae679df7f6c3431c12b575cc73e050409f327424d7f931d21",
+      "timestamp": 1601492704791,
       "description": "Transferred INDEX to Merkle Distributor"
     }
   }

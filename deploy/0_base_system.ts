@@ -28,13 +28,26 @@ const EMPTY_ARGS: any[] = [];
 const distributionArray: DistributionFormat[] = [
   {
     address: "0xe3a1340Be2B4c8dE9E20ab185CfF37480521D9Af",
-    earnings: ether(1)
+    earnings: ether(100)
   },
   {
-    address: "0x64cf6e538ce757645a953376c0f1be6fab8a2e09",
-    earnings: ether(1)
-  }
+    address: "0x3329e5C37Ab27676df1e7077E5D75a82a6bFD0FC",
+    earnings: ether(10)
+  },
+  {
+    address: "0x5Dd5FC8761fe933bC58e5aB5Be062dd836DFA801",
+    earnings: ether(1000)
+  },
+  {
+    address: "0x44FFf6Ad56A66e718977e08A51510A143CB4cbF9",
+    earnings: ether(2000)
+  },
+  {
+    address: "0xEC0815AA9B462ed4fC84B5dFc43Fd2a10a54B569",
+    earnings: ether(20)
+  },
 ];
+
 const merkleRootObject = parseBalanceMap(distributionArray); // Merkle root object
 const uniswapLPRewardAmount = ether(900000); // 900k tokens; 9% supply
 const merkleDistributorAmount = ether(100000); // 100k tokens; 1% supply
@@ -43,16 +56,16 @@ const setLabsVestingAmount = ether(2850000); // 2.85m tokens; 28.5% supply
 const dfpVestingAmount = ether(150000); // 150k tokens; 1.5% supply
 
 // Vesting parameters
-const vestingBegin = new BigNumber(1601406234); // TBD
+const vestingBegin = new BigNumber(1601665029); // TBD
 
-const daoVestingCliff = new BigNumber(1601406234); // TBD
-const daoVestingEnd = new BigNumber(1601406235); // TBD
+const daoVestingCliff = new BigNumber(1601665030); // TBD
+const daoVestingEnd = new BigNumber(1601665031); // TBD
 
-const setLabsVestingCliff = new BigNumber(1601406234); // TBD
-const setLabsVestingEnd = new BigNumber(1601406235); // TBD
+const setLabsVestingCliff = new BigNumber(1601665030); // TBD
+const setLabsVestingEnd = new BigNumber(1601665031); // TBD
 
-const dfpVestingCliff = new BigNumber(1601406234); // TBD
-const dfpVestingEnd = new BigNumber(1601406235); // TBD
+const dfpVestingCliff = new BigNumber(1601665030); // TBD
+const dfpVestingEnd = new BigNumber(1601665031); // TBD
 
 const func: DeployFunction = async function (bre: BuidlerRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = bre;
@@ -73,7 +86,7 @@ const func: DeployFunction = async function (bre: BuidlerRuntimeEnvironment) {
 
   await ensureOutputsFile();
 
-  // console.log(merkleRootObject.claims["0xe3a1340Be2B4c8dE9E20ab185CfF37480521D9Af"]);
+  console.log(JSON.stringify(merkleRootObject.claims));
 
   // Retrieve dependencies
   let uniswapLPReward = await findDependency("DPI_ETH_UNI_POOL");
