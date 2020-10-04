@@ -3,10 +3,10 @@ pragma experimental ABIEncoderV2;
 
 contract IndexDAO {
     /// @notice EIP-20 token name for this token
-    string public constant name = "TEST_DAO";
+    string public constant name = "IndexDAO";
 
     /// @notice EIP-20 token symbol for this token
-    string public constant symbol = "TEST";
+    string public constant symbol = "INDEX";
 
     /// @notice EIP-20 token decimals for this token
     uint8 public constant decimals = 18;

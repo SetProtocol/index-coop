@@ -5,13 +5,24 @@
     "network_id": 42
   },
   "addresses": {
-    "IndexDAO": "0x797029d8a74AD7a0ac5480597796a8452d968aeB",
-    "StakingRewards": "0x4ec6B21f86ED81329091F46627CD2d09D5F711f3",
-    "DAOVesting": "0xECc449e9495Ea1B2065BC6f2f24e57748c565297",
-    "SetLabsVesting": "0x3481a470Db611Dc2525c17c5a63EeCFBE01abE19",
-    "DFPVesting": "0x5cF10B688e822Ef12Cf8d3B1B10C6f76963663e6",
-    "MerkleDistributor - DEPRECATED": "0x3961E5a9C3e82467eCe164abc3f60d139B89d486",
-    "MerkleDistributor": "0xaE6dCbcAcc7fE0b8da020e69b5edd5De6Da75f91"
+    "IndexDAO - DEPRECATED": "0x797029d8a74AD7a0ac5480597796a8452d968aeB",
+    "StakingRewards - DEPRECATED": "0x4ec6B21f86ED81329091F46627CD2d09D5F711f3",
+    "DAOVesting - DEPRECATED": "0xECc449e9495Ea1B2065BC6f2f24e57748c565297",
+    "SetLabsVesting - DEPRECATED": "0x3481a470Db611Dc2525c17c5a63EeCFBE01abE19",
+    "DFPVesting - DEPRECATED": "0x5cF10B688e822Ef12Cf8d3B1B10C6f76963663e6",
+    "MerkleDistributor - DEPRECATED": "0xaE6dCbcAcc7fE0b8da020e69b5edd5De6Da75f91",
+    "IndexDAO": "0x4DC8E79C5fF3C9a95d0DbF27096f080cbA269764",
+    "MerkleDistributor": "0xb5dC448667f2bA45b0c871859F99499F2bC5B9FA",
+    "StakingRewards": "0x56cbe882BdA2586bc272E1f684AE9c4AB814c20F",
+    "OneYearDAOVesting": "0x714847e5AE4884739b3eD5d6E49638D21352C37B",
+    "TwoYearDAOVesting": "0x973A526a633313b2d32B9a96ED16E212303D6905",
+    "ThreeYearDAOVesting": "0x450aB88B0419109Ed03700B35a2e482aDC6b695d",
+    "OneYearSetLabsVesting": "0x7Af3AfDCFd263020787C1564726f771F7E581C8D",
+    "TwoYearSetLabsVesting": "0x454EafBd022221873DCe419c5a6D5972C729e0b2",
+    "ThreeYearSetLabsVesting": "0x2780f360e6E1e09D31Ab499C46902873CA7dBC64",
+    "OneYearDFPVesting": "0xf675586d3e145e4365571D999D0728c4d2Ff1C64",
+    "TwoYearDFPVesting": "0xDe02A12869d15852029F80e1F70B8eC808677D4D",
+    "ThreeYearDFPVesting": "0xeB5945DA68FFd77E8c8fF7c12a4ba2068aEf55EE"
   },
   "transactions": {
     "0": {
@@ -88,6 +99,121 @@
       "id": "0x3b468f82509902eae679df7f6c3431c12b575cc73e050409f327424d7f931d21",
       "timestamp": 1601492704791,
       "description": "Transferred INDEX to Merkle Distributor"
+    },
+    "15": {
+      "id": "0x789d5c196eba5cb603020e2fe370a00571613cecd1e48b8e86d6479880d8ef9e",
+      "timestamp": 1601845421247,
+      "description": "Deployed IndexDAO"
+    },
+    "16": {
+      "id": "0xbb97152d1d52dd371e3a8838f3cf1df93342e100e6efbca1b0f12888ca4fef57",
+      "timestamp": 1601845428920,
+      "description": "Deployed MerkleDistributor"
+    },
+    "17": {
+      "id": "0xe659ca3cce9c434481351075e711661076e42b12f518c07ac245687b82c4c271",
+      "timestamp": 1601845432862,
+      "description": "Deployed StakingRewards"
+    },
+    "18": {
+      "id": "0xf127f475a16dc59a1109a5f755d2cb7a8e07657700ee5d5ad18a3fdcd4e54e04",
+      "timestamp": 1601845440925,
+      "description": "Deployed 1yr DAO Vesting"
+    },
+    "19": {
+      "id": "0x75474d4b86e5939ce8fde7b6e2b245e768202a41bbd763030fb19432230caec1",
+      "timestamp": 1601845445702,
+      "description": "Deployed 2yr DAO Vesting"
+    },
+    "20": {
+      "id": "0x7237266bfe5f8f427c4d6c2f9b33e6ed01bf45d6067eed9c753cf99ef5d98abc",
+      "timestamp": 1601845454407,
+      "description": "Deployed 3yr DAO Vesting"
+    },
+    "21": {
+      "id": "0xce5124afca41c6313da525a4b47dd3d9cb935c0c4f52a3c00b4d5ba25dd4f5ad",
+      "timestamp": 1601845464020,
+      "description": "Deployed 1yr Set Labs Vesting"
+    },
+    "22": {
+      "id": "0x000168d5999bc2d55a788b329b58bab62db439d7bde2e157dffdecd0154fcfe8",
+      "timestamp": 1601845472674,
+      "description": "Deployed 1yr Set Labs Vesting"
+    },
+    "23": {
+      "id": "0x9f2ba2ffbcc283b4db306cf98e69b7fcc0a110c03f37d19fb3ce0a6146eec116",
+      "timestamp": 1601845481627,
+      "description": "Deployed 1yr Set Labs Vesting"
+    },
+    "24": {
+      "id": "0x9818e8df112df9b8244e74a7198a7fb99a2ba2620cad83f97ffb797b84cbdd20",
+      "timestamp": 1601845485373,
+      "description": "Deployed 1yr DFP Vesting"
+    },
+    "25": {
+      "id": "0x3ec8a54c070f35c503eb981dd4d4674b0458c514d48f53d6e5124111357d9ee4",
+      "timestamp": 1601845493295,
+      "description": "Deployed 1yr DFP Vesting"
+    },
+    "26": {
+      "id": "0x3c7832a0e4edccfc41ccb33899cd2e54b70b2a1dd043fc16f15a859de2a178c4",
+      "timestamp": 1601845497337,
+      "description": "Deployed 1yr DFP Vesting"
+    },
+    "27": {
+      "id": "0x47f2986239e230f20f807dfa81018eeb715f9c9a6fbf26118654dd83ed33602c",
+      "timestamp": 1601845507221,
+      "description": "Transferred INDEX to Merkle Distributor"
+    },
+    "28": {
+      "id": "0x982de13494763f6ff1c7778aab94d25249bfd811cff4a44de8185dc292fb9e25",
+      "timestamp": 1601845515562,
+      "description": "Transferred INDEX to Uniswap LP StakingRewards"
+    },
+    "29": {
+      "id": "0x1419d1388e52e690003c5d465bc2ccec0d5b7eabe215b44c5ba25380100c557a",
+      "timestamp": 1601845523856,
+      "description": "Transferred INDEX to DAO 1yr vesting contract"
+    },
+    "30": {
+      "id": "0xc4d4467dd3995c2d70c16ef7a777b2198889e2f0c9e9d7e908e11d2baec29e21",
+      "timestamp": 1601845536385,
+      "description": "Transferred INDEX to DAO 2yr vesting contract"
+    },
+    "31": {
+      "id": "0x33c1014e77b91a49766f9339ac6c291157f8b00db61e73be952e79caee505e67",
+      "timestamp": 1601845548532,
+      "description": "Transferred INDEX to DAO 2yr vesting contract"
+    },
+    "32": {
+      "id": "0xe7d995ea0c685bf8a2c55de0d3a0ee0365fab6aa73f8425b0281f6c20a5a7b32",
+      "timestamp": 1601845552618,
+      "description": "Transferred INDEX to Set Labs 1yr vesting contract"
+    },
+    "33": {
+      "id": "0x185c5a135d2d6232af45e819b866243cf47fd4b3270306863d5a6ff2ca19374f",
+      "timestamp": 1601845560744,
+      "description": "Transferred INDEX to Set Labs 2yr vesting contract"
+    },
+    "34": {
+      "id": "0x18fc1b0b12494b40b0d6ac39a96b7a91647e6068e95a6a2992ae31c0164c0d11",
+      "timestamp": 1601845564573,
+      "description": "Transferred INDEX to Set Labs 3yr vesting contract"
+    },
+    "35": {
+      "id": "0x4829ab97ad0597c0ff5b844c2bca16e265b7886b123f1d6a0179d23e3bbbf07a",
+      "timestamp": 1601845572413,
+      "description": "Transferred INDEX to DFP 1yr vesting contract"
+    },
+    "36": {
+      "id": "0x51df98cb3202866daf284e9c4aa18308aef9094a6bd339e1ef16a565bd9848f5",
+      "timestamp": 1601845580037,
+      "description": "Transferred INDEX to DFP 2yr vesting contract"
+    },
+    "37": {
+      "id": "0xed8ce58060ad54755bb13cd3a0849fbbae8a6486c29b323004726e48d06fa9cb",
+      "timestamp": 1601845587531,
+      "description": "Transferred INDEX to DFP 3yr vesting contract"
     }
   }
 }

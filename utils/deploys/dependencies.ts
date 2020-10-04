@@ -14,7 +14,7 @@ export default {
   // Admin
 
   DAO_MULTI_SIG: {
-    1: "",
+    1: "0x9467cfADC9DE245010dF95Ec6a585A506A8ad5FC",
   },
   SET_LABS: {
     1: "0xF8523c551763FE4261A28313015267F163de7541",

@@ -17,6 +17,7 @@ import {
   writeContractAndTransactionToOutputs,
   writeTransactionToOutputs
 } from "@utils/deploys/output-helper";
+import { MERKLE_DISTRIBUTION } from "@utils/deploys/merkleDistribution";
 import { ether, parseBalanceMap } from "@utils/index";
 import { IndexDaoFactory } from "../typechain/IndexDaoFactory";
 
@@ -25,47 +26,45 @@ import { Account, DistributionFormat } from "@utils/types";
 const EMPTY_ARGS: any[] = [];
 
 // MOCK DISTRIBUTION
-const distributionArray: DistributionFormat[] = [
-  {
-    address: "0xe3a1340Be2B4c8dE9E20ab185CfF37480521D9Af",
-    earnings: ether(100)
-  },
-  {
-    address: "0x3329e5C37Ab27676df1e7077E5D75a82a6bFD0FC",
-    earnings: ether(10)
-  },
-  {
-    address: "0x5Dd5FC8761fe933bC58e5aB5Be062dd836DFA801",
-    earnings: ether(1000)
-  },
-  {
-    address: "0x44FFf6Ad56A66e718977e08A51510A143CB4cbF9",
-    earnings: ether(2000)
-  },
-  {
-    address: "0xEC0815AA9B462ed4fC84B5dFc43Fd2a10a54B569",
-    earnings: ether(20)
-  },
-];
+const distributionArray: DistributionFormat[] = MERKLE_DISTRIBUTION;
 
 const merkleRootObject = parseBalanceMap(distributionArray); // Merkle root object
 const uniswapLPRewardAmount = ether(900000); // 900k tokens; 9% supply
 const merkleDistributorAmount = ether(100000); // 100k tokens; 1% supply
-const daoOwnershipAmount = ether(6000000); // 6m tokens; 60% supply
-const setLabsVestingAmount = ether(2850000); // 2.85m tokens; 28.5% supply
-const dfpVestingAmount = ether(150000); // 150k tokens; 1.5% supply
+
+const daoImmediateOwnershipAmount = ether(1250000); // 1.25m tokens; 1.25% supply
+
+// DAO vesting amounts 47.5%
+const daoOneYearOwnershipAmount = ether(2375000); // 2.375m tokens; 23.75% supply
+const daoTwoYearOwnershipAmount = ether(1425000); // 1.425m tokens; 14.25% supply
+const daoThreeYearOwnershipAmount = ether(950000); // 950k tokens; 9.5% supply
+
+// Set Labs vesting amounts 28%
+const setLabsOneYearOwnershipAmount = ether(1400000); // 1.4m tokens; 14% supply
+const setLabsTwoYearOwnershipAmount = ether(840000); // 840k tokens; 8.4% supply
+const setLabsThreeYearOwnershipAmount = ether(560000); // 560k tokens; 5.6% supply
+
+// DeFi Pulse vesting amounts 2%
+const dfpOneYearOwnershipAmount = ether(100000); // 100k tokens; 1% supply
+const dfpTwoYearOwnershipAmount = ether(60000); // 60k tokens; 0.6% supply
+const dfpThreeYearOwnershipAmount = ether(40000); // 40k tokens; 0.4% supply
 
 // Vesting parameters
-const vestingBegin = new BigNumber(1601665029); // TBD
 
-const daoVestingCliff = new BigNumber(1601665030); // TBD
-const daoVestingEnd = new BigNumber(1601665031); // TBD
+// #1 1 year vesting
+const vestingOneYearBegin = new BigNumber(1602010800); // 10/6 Tuesday 12PM PST
+const vestingOneYearCliff = new BigNumber(1602010800); // 10/6 Tuesday 12PM PST
+const vestingOneYearEnd = new BigNumber(1633546800); // 1633546800
 
-const setLabsVestingCliff = new BigNumber(1601665030); // TBD
-const setLabsVestingEnd = new BigNumber(1601665031); // TBD
+// #2 2 year vesting
+const vestingTwoYearBegin = new BigNumber(1633546800);
+const vestingTwoYearCliff = new BigNumber(1633546800);
+const vestingTwoYearEnd = new BigNumber(1665082800);
 
-const dfpVestingCliff = new BigNumber(1601665030); // TBD
-const dfpVestingEnd = new BigNumber(1601665031); // TBD
+// #3 3 year vesting
+const vestingThreeYearBegin = new BigNumber(1665082800);
+const vestingThreeYearCliff = new BigNumber(1665082800);
+const vestingThreeYearEnd = new BigNumber(1696618800);
 
 const func: DeployFunction = async function (bre: BuidlerRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = bre;
@@ -142,48 +141,132 @@ const func: DeployFunction = async function (bre: BuidlerRuntimeEnvironment) {
   if (checkStakingRewardsAddress === "") {
     const stakingRewardsDeploy = await deploy(
       "StakingRewards",
-      { from: deployer, args: [setLabsAddress, indexDAOAddress, uniswapLPReward], log: true }
+      { from: deployer, args: [daoMultisigAddress, indexDAOAddress, uniswapLPReward], log: true }
     );
     await writeContractAndTransactionToOutputs("StakingRewards", stakingRewardsDeploy.address, stakingRewardsDeploy.receipt.transactionHash, "Deployed StakingRewards");
   }
   const stakingRewardsAddress = await getContractAddress("StakingRewards");
   
-  // Deploy DAO treasury vesting contract
-  const checkDAOVestingAddress = await getContractAddress("DAOVesting");
-  if (checkDAOVestingAddress === "") {
+  // Deploy DAO 1 year treasury vesting contract
+  const checkOneYearDAOVestingAddress = await getContractAddress("OneYearDAOVesting");
+  if (checkOneYearDAOVestingAddress === "") {
     const daoVestingDeploy = await deploy(
       "Vesting",
-      { from: deployer, args: [indexDAOAddress, daoMultisigAddress, daoOwnershipAmount, vestingBegin, daoVestingCliff, daoVestingEnd], log: true }
+      { from: deployer, args: [indexDAOAddress, daoMultisigAddress, daoOneYearOwnershipAmount, vestingOneYearBegin, vestingOneYearCliff, vestingOneYearEnd], log: true }
     );
-    await writeContractAndTransactionToOutputs("DAOVesting", daoVestingDeploy.address, daoVestingDeploy.receipt.transactionHash, "Deployed DAO Vesting");
+    await writeContractAndTransactionToOutputs("OneYearDAOVesting", daoVestingDeploy.address, daoVestingDeploy.receipt.transactionHash, "Deployed 1yr DAO Vesting");
   }
-  const daoVestingAddress = await getContractAddress("DAOVesting");
+  const daoOneYearVestingAddress = await getContractAddress("OneYearDAOVesting");
 
-  // Deploy Set Labs vesting contract
-  const checkSetLabsVestingAddress = await getContractAddress("SetLabsVesting");
-  if (checkSetLabsVestingAddress === "") {
+  // Deploy DAO 2 year treasury vesting contract
+  const checkTwoYearDAOVestingAddress = await getContractAddress("TwoYearDAOVesting");
+  if (checkTwoYearDAOVestingAddress === "") {
+    const daoVestingDeploy = await deploy(
+      "Vesting",
+      { from: deployer, args: [indexDAOAddress, daoMultisigAddress, daoTwoYearOwnershipAmount, vestingTwoYearBegin, vestingTwoYearCliff, vestingTwoYearEnd], log: true }
+    );
+    await writeContractAndTransactionToOutputs("TwoYearDAOVesting", daoVestingDeploy.address, daoVestingDeploy.receipt.transactionHash, "Deployed 2yr DAO Vesting");
+  }
+  const daoTwoYearVestingAddress = await getContractAddress("TwoYearDAOVesting");
+
+  // Deploy DAO 3 year treasury vesting contract
+  const checkThreeYearDAOVestingAddress = await getContractAddress("ThreeYearDAOVesting");
+  if (checkThreeYearDAOVestingAddress === "") {
+    const daoVestingDeploy = await deploy(
+      "Vesting",
+      { from: deployer, args: [indexDAOAddress, daoMultisigAddress, daoThreeYearOwnershipAmount, vestingThreeYearBegin, vestingThreeYearCliff, vestingThreeYearEnd], log: true }
+    );
+    await writeContractAndTransactionToOutputs("ThreeYearDAOVesting", daoVestingDeploy.address, daoVestingDeploy.receipt.transactionHash, "Deployed 3yr DAO Vesting");
+  }
+  const daoThreeYearVestingAddress = await getContractAddress("ThreeYearDAOVesting");
+
+  // Deploy Set Labs 1 year vesting contract
+  const checkOneYearSetLabsVestingAddress = await getContractAddress("OneYearSetLabsVesting");
+  if (checkOneYearSetLabsVestingAddress === "") {
     const setLabsVestingDeploy = await deploy(
       "Vesting",
-      { from: deployer, args: [indexDAOAddress, setLabsAddress, setLabsVestingAmount, vestingBegin, setLabsVestingCliff, setLabsVestingEnd], log: true }
+      { from: deployer, args: [indexDAOAddress, setLabsAddress, setLabsOneYearOwnershipAmount, vestingOneYearBegin, vestingOneYearCliff, vestingOneYearEnd], log: true }
     );
-    await writeContractAndTransactionToOutputs("SetLabsVesting", setLabsVestingDeploy.address, setLabsVestingDeploy.receipt.transactionHash, "Deployed Set Labs Vesting");
+    await writeContractAndTransactionToOutputs("OneYearSetLabsVesting", setLabsVestingDeploy.address, setLabsVestingDeploy.receipt.transactionHash, "Deployed 1yr Set Labs Vesting");
   }
-  const setLabsVestingAddress = await getContractAddress("SetLabsVesting");
+  const setLabsOneYearVestingAddress = await getContractAddress("OneYearSetLabsVesting");
 
-  // Deploy DFP vesting contract
-  const checkDFPVestingAddress = await getContractAddress("DFPVesting");
-  if (checkDFPVestingAddress === "") {
+  // Deploy Set Labs 2 year vesting contract
+  const checkTwoYearSetLabsVestingAddress = await getContractAddress("TwoYearSetLabsVesting");
+  if (checkTwoYearSetLabsVestingAddress === "") {
+    const setLabsVestingDeploy = await deploy(
+      "Vesting",
+      { from: deployer, args: [indexDAOAddress, setLabsAddress, setLabsTwoYearOwnershipAmount, vestingTwoYearBegin, vestingTwoYearCliff, vestingTwoYearEnd], log: true }
+    );
+    await writeContractAndTransactionToOutputs("TwoYearSetLabsVesting", setLabsVestingDeploy.address, setLabsVestingDeploy.receipt.transactionHash, "Deployed 1yr Set Labs Vesting");
+  }
+  const setLabsTwoYearVestingAddress = await getContractAddress("TwoYearSetLabsVesting");
+
+  // Deploy Set Labs 3 year vesting contract
+  const checkThreeYearSetLabsVestingAddress = await getContractAddress("ThreeYearSetLabsVesting");
+  if (checkThreeYearSetLabsVestingAddress === "") {
+    const setLabsVestingDeploy = await deploy(
+      "Vesting",
+      { from: deployer, args: [indexDAOAddress, setLabsAddress, setLabsThreeYearOwnershipAmount, vestingThreeYearBegin, vestingThreeYearCliff, vestingThreeYearEnd], log: true }
+    );
+    await writeContractAndTransactionToOutputs("ThreeYearSetLabsVesting", setLabsVestingDeploy.address, setLabsVestingDeploy.receipt.transactionHash, "Deployed 1yr Set Labs Vesting");
+  }
+  const setLabsThreeYearVestingAddress = await getContractAddress("ThreeYearSetLabsVesting");
+
+  // Deploy DFP 1 year vesting contract
+  const checkOneYearDFPVestingAddress = await getContractAddress("OneYearDFPVesting");
+  if (checkOneYearDFPVestingAddress === "") {
     const dfpVestingDeploy = await deploy(
       "Vesting",
-      { from: deployer, args: [indexDAOAddress, dfpMultisigAddress, dfpVestingAmount, vestingBegin, dfpVestingCliff, dfpVestingEnd], log: true }
+      { from: deployer, args: [indexDAOAddress, dfpMultisigAddress, dfpOneYearOwnershipAmount, vestingOneYearBegin, vestingOneYearCliff, vestingOneYearEnd], log: true }
     );
-    await writeContractAndTransactionToOutputs("DFPVesting", dfpVestingDeploy.address, dfpVestingDeploy.receipt.transactionHash, "Deployed DFP Vesting");
+    await writeContractAndTransactionToOutputs("OneYearDFPVesting", dfpVestingDeploy.address, dfpVestingDeploy.receipt.transactionHash, "Deployed 1yr DFP Vesting");
   }
-  const dfpVestingAddress = await getContractAddress("DFPVesting");
+  const dfpOneYearVestingAddress = await getContractAddress("OneYearDFPVesting");
+
+  // Deploy DFP 2 year vesting contract
+  const checkTwoYearDFPVestingAddress = await getContractAddress("TwoYearDFPVesting");
+  if (checkTwoYearDFPVestingAddress === "") {
+    const dfpVestingDeploy = await deploy(
+      "Vesting",
+      { from: deployer, args: [indexDAOAddress, dfpMultisigAddress, dfpTwoYearOwnershipAmount, vestingTwoYearBegin, vestingTwoYearCliff, vestingTwoYearEnd], log: true }
+    );
+    await writeContractAndTransactionToOutputs("TwoYearDFPVesting", dfpVestingDeploy.address, dfpVestingDeploy.receipt.transactionHash, "Deployed 1yr DFP Vesting");
+  }
+  const dfpTwoYearVestingAddress = await getContractAddress("TwoYearDFPVesting");
+
+  // Deploy DFP 3 year vesting contract
+  const checkThreeYearDFPVestingAddress = await getContractAddress("ThreeYearDFPVesting");
+  if (checkThreeYearDFPVestingAddress === "") {
+    const dfpVestingDeploy = await deploy(
+      "Vesting",
+      { from: deployer, args: [indexDAOAddress, dfpMultisigAddress, dfpThreeYearOwnershipAmount, vestingThreeYearBegin, vestingThreeYearCliff, vestingThreeYearEnd], log: true }
+    );
+    await writeContractAndTransactionToOutputs("ThreeYearDFPVesting", dfpVestingDeploy.address, dfpVestingDeploy.receipt.transactionHash, "Deployed 1yr DFP Vesting");
+  }
+  const dfpThreeYearVestingAddress = await getContractAddress("ThreeYearDFPVesting");
+
+  // Transfer INDEX tokens
+
+  const indexDAOToken = await new IndexDaoFactory(ownerWallet).attach(indexDAOAddress);
+
+  // Transfer immediately vested tokens to DAO treasury
+  const daoMultisigBalance = await indexDAOToken.balanceOf(daoMultisigAddress);
+  if (daoMultisigBalance.eq(0)) {
+    const transferToDAOMultisigData = indexDAOToken.interface.functions.transfer.encode([
+      daoMultisigAddress,
+      daoImmediateOwnershipAmount
+    ]);
+    const transferToDAOMultisigHash: any = await rawTx({
+      from: deployer,
+      to: indexDAOToken.address,
+      data: transferToDAOMultisigData,
+      log: true,
+    });
+    await writeTransactionToOutputs(transferToDAOMultisigHash.transactionHash, "Transferred immediately vested INDEX to DAO Multisig");
+  }
 
   // Transfer tokens to Merkle Distributor contract
-  const indexDAOToken = await new IndexDaoFactory(ownerWallet).attach(indexDAOAddress);
-  
   const merkleDistributorRewardsBalance = await indexDAOToken.balanceOf(merkleDistributorAddress);
   if (merkleDistributorRewardsBalance.eq(0)) {
     const transferToMerkleDistributorData = indexDAOToken.interface.functions.transfer.encode([
@@ -215,12 +298,12 @@ const func: DeployFunction = async function (bre: BuidlerRuntimeEnvironment) {
     await writeTransactionToOutputs(transferToStakingRewardHash.transactionHash, "Transferred INDEX to Uniswap LP StakingRewards");
   }
 
-  // Transfer tokens to DAO vesting contract
-  const daoOwnerBalance = await indexDAOToken.balanceOf(daoVestingAddress);
-  if (daoOwnerBalance.eq(0)) {
+  // Transfer tokens to DAO 1 year vesting contract
+  const daoOneYearOwnerBalance = await indexDAOToken.balanceOf(daoOneYearVestingAddress);
+  if (daoOneYearOwnerBalance.eq(0)) {
     const transferToDAOOwnerData = indexDAOToken.interface.functions.transfer.encode([
-      daoVestingAddress,
-      daoOwnershipAmount
+      daoOneYearVestingAddress,
+      daoOneYearOwnershipAmount
     ]);
     const transferToDAOOwnerHash: any = await rawTx({
       from: deployer,
@@ -228,15 +311,47 @@ const func: DeployFunction = async function (bre: BuidlerRuntimeEnvironment) {
       data: transferToDAOOwnerData,
       log: true,
     });
-    await writeTransactionToOutputs(transferToDAOOwnerHash.transactionHash, "Transferred INDEX to DAO vesting contract");
+    await writeTransactionToOutputs(transferToDAOOwnerHash.transactionHash, "Transferred INDEX to DAO 1yr vesting contract");
   }
 
-  // Transfer tokens to Set Labs vesting contract
-  const setLabsBalance = await indexDAOToken.balanceOf(setLabsVestingAddress);
-  if (setLabsBalance.eq(0)) {
+  // Transfer tokens to DAO 2 year vesting contract
+  const daoTwoYearOwnerBalance = await indexDAOToken.balanceOf(daoTwoYearVestingAddress);
+  if (daoTwoYearOwnerBalance.eq(0)) {
+    const transferToDAOOwnerData = indexDAOToken.interface.functions.transfer.encode([
+      daoTwoYearVestingAddress,
+      daoTwoYearOwnershipAmount
+    ]);
+    const transferToDAOOwnerHash: any = await rawTx({
+      from: deployer,
+      to: indexDAOToken.address,
+      data: transferToDAOOwnerData,
+      log: true,
+    });
+    await writeTransactionToOutputs(transferToDAOOwnerHash.transactionHash, "Transferred INDEX to DAO 2yr vesting contract");
+  }
+
+  // Transfer tokens to DAO 3 year vesting contract
+  const daoThreeYearOwnerBalance = await indexDAOToken.balanceOf(daoThreeYearVestingAddress);
+  if (daoThreeYearOwnerBalance.eq(0)) {
+    const transferToDAOOwnerData = indexDAOToken.interface.functions.transfer.encode([
+      daoThreeYearVestingAddress,
+      daoThreeYearOwnershipAmount
+    ]);
+    const transferToDAOOwnerHash: any = await rawTx({
+      from: deployer,
+      to: indexDAOToken.address,
+      data: transferToDAOOwnerData,
+      log: true,
+    });
+    await writeTransactionToOutputs(transferToDAOOwnerHash.transactionHash, "Transferred INDEX to DAO 2yr vesting contract");
+  }
+
+  // Transfer tokens to Set Labs 1yr vesting contract
+  const setLabsOneYearBalance = await indexDAOToken.balanceOf(setLabsOneYearVestingAddress);
+  if (setLabsOneYearBalance.eq(0)) {
     const transferToSetLabsData = indexDAOToken.interface.functions.transfer.encode([
-      setLabsVestingAddress,
-      setLabsVestingAmount
+      setLabsOneYearVestingAddress,
+      setLabsOneYearOwnershipAmount
     ]);
     const transferToSetLabsHash: any = await rawTx({
       from: deployer,
@@ -244,15 +359,47 @@ const func: DeployFunction = async function (bre: BuidlerRuntimeEnvironment) {
       data: transferToSetLabsData,
       log: true,
     });
-    await writeTransactionToOutputs(transferToSetLabsHash.transactionHash, "Transferred INDEX to Set Labs vesting contract");
+    await writeTransactionToOutputs(transferToSetLabsHash.transactionHash, "Transferred INDEX to Set Labs 1yr vesting contract");
   }
 
-  // Transfer tokens to DFP vesting contract
-  const dfpBalance = await indexDAOToken.balanceOf(dfpVestingAddress);
-  if (dfpBalance.eq(0)) {
+  // Transfer tokens to Set Labs 2yr vesting contract
+  const setLabsTwoYearBalance = await indexDAOToken.balanceOf(setLabsTwoYearVestingAddress);
+  if (setLabsTwoYearBalance.eq(0)) {
+    const transferToSetLabsData = indexDAOToken.interface.functions.transfer.encode([
+      setLabsTwoYearVestingAddress,
+      setLabsTwoYearOwnershipAmount
+    ]);
+    const transferToSetLabsHash: any = await rawTx({
+      from: deployer,
+      to: indexDAOToken.address,
+      data: transferToSetLabsData,
+      log: true,
+    });
+    await writeTransactionToOutputs(transferToSetLabsHash.transactionHash, "Transferred INDEX to Set Labs 2yr vesting contract");
+  }
+
+  // Transfer tokens to Set Labs 3yr vesting contract
+  const setLabsThreeYearBalance = await indexDAOToken.balanceOf(setLabsThreeYearVestingAddress);
+  if (setLabsThreeYearBalance.eq(0)) {
+    const transferToSetLabsData = indexDAOToken.interface.functions.transfer.encode([
+      setLabsThreeYearVestingAddress,
+      setLabsThreeYearOwnershipAmount
+    ]);
+    const transferToSetLabsHash: any = await rawTx({
+      from: deployer,
+      to: indexDAOToken.address,
+      data: transferToSetLabsData,
+      log: true,
+    });
+    await writeTransactionToOutputs(transferToSetLabsHash.transactionHash, "Transferred INDEX to Set Labs 3yr vesting contract");
+  }
+
+  // Transfer tokens to DFP 1yr vesting contract
+  const dfpOneYearBalance = await indexDAOToken.balanceOf(dfpOneYearVestingAddress);
+  if (dfpOneYearBalance.eq(0)) {
     const transferToDFPData = indexDAOToken.interface.functions.transfer.encode([
-      dfpVestingAddress,
-      dfpVestingAmount
+      dfpOneYearVestingAddress,
+      dfpOneYearOwnershipAmount
     ]);
     const transferToDFPHash: any = await rawTx({
       from: deployer,
@@ -260,7 +407,39 @@ const func: DeployFunction = async function (bre: BuidlerRuntimeEnvironment) {
       data: transferToDFPData,
       log: true,
     });
-    await writeTransactionToOutputs(transferToDFPHash.transactionHash, "Transferred INDEX to DFP vesting contract");
+    await writeTransactionToOutputs(transferToDFPHash.transactionHash, "Transferred INDEX to DFP 1yr vesting contract");
+  }
+
+  // Transfer tokens to DFP 2yr vesting contract
+  const dfpTwoYearBalance = await indexDAOToken.balanceOf(dfpTwoYearVestingAddress);
+  if (dfpTwoYearBalance.eq(0)) {
+    const transferToDFPData = indexDAOToken.interface.functions.transfer.encode([
+      dfpTwoYearVestingAddress,
+      dfpTwoYearOwnershipAmount
+    ]);
+    const transferToDFPHash: any = await rawTx({
+      from: deployer,
+      to: indexDAOToken.address,
+      data: transferToDFPData,
+      log: true,
+    });
+    await writeTransactionToOutputs(transferToDFPHash.transactionHash, "Transferred INDEX to DFP 2yr vesting contract");
+  }
+
+  // Transfer tokens to DFP 3yr vesting contract
+  const dfpThreeYearBalance = await indexDAOToken.balanceOf(dfpThreeYearVestingAddress);
+  if (dfpThreeYearBalance.eq(0)) {
+    const transferToDFPData = indexDAOToken.interface.functions.transfer.encode([
+      dfpThreeYearVestingAddress,
+      dfpThreeYearOwnershipAmount
+    ]);
+    const transferToDFPHash: any = await rawTx({
+      from: deployer,
+      to: indexDAOToken.address,
+      data: transferToDFPData,
+      log: true,
+    });
+    await writeTransactionToOutputs(transferToDFPHash.transactionHash, "Transferred INDEX to DFP 3yr vesting contract");
   }
 };
 export default func;
