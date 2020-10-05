@@ -25,14 +25,13 @@ import { Account, DistributionFormat } from "@utils/types";
 
 const EMPTY_ARGS: any[] = [];
 
-// MOCK DISTRIBUTION
 const distributionArray: DistributionFormat[] = MERKLE_DISTRIBUTION;
 
 const merkleRootObject = parseBalanceMap(distributionArray); // Merkle root object
 const uniswapLPRewardAmount = ether(900000); // 900k tokens; 9% supply
 const merkleDistributorAmount = ether(100000); // 100k tokens; 1% supply
 
-const daoImmediateOwnershipAmount = ether(1250000); // 1.25m tokens; 1.25% supply
+const daoImmediateOwnershipAmount = ether(1250000); // 1.25m tokens; 12.5% supply
 
 // DAO vesting amounts 47.5%
 const daoOneYearOwnershipAmount = ether(2375000); // 2.375m tokens; 23.75% supply
@@ -52,19 +51,19 @@ const dfpThreeYearOwnershipAmount = ether(40000); // 40k tokens; 0.4% supply
 // Vesting parameters
 
 // #1 1 year vesting
-const vestingOneYearBegin = new BigNumber(1602010800); // 10/6 Tuesday 12PM PST
-const vestingOneYearCliff = new BigNumber(1602010800); // 10/6 Tuesday 12PM PST
-const vestingOneYearEnd = new BigNumber(1633546800); // 1633546800
+const vestingOneYearBegin = new BigNumber(1602010800); // 10/6/2020 Tuesday 12PM PST
+const vestingOneYearCliff = new BigNumber(1602010800); // 10/6/2020 Tuesday 12PM PST
+const vestingOneYearEnd = new BigNumber(1633546800); // 10/6/2021
 
 // #2 2 year vesting
-const vestingTwoYearBegin = new BigNumber(1633546800);
-const vestingTwoYearCliff = new BigNumber(1633546800);
-const vestingTwoYearEnd = new BigNumber(1665082800);
+const vestingTwoYearBegin = new BigNumber(1633546800); // 10/6/2021
+const vestingTwoYearCliff = new BigNumber(1633546800); // 10/6/2021
+const vestingTwoYearEnd = new BigNumber(1665082800); // 10/6/2022
 
 // #3 3 year vesting
-const vestingThreeYearBegin = new BigNumber(1665082800);
-const vestingThreeYearCliff = new BigNumber(1665082800);
-const vestingThreeYearEnd = new BigNumber(1696618800);
+const vestingThreeYearBegin = new BigNumber(1665082800); // 10/6/2022
+const vestingThreeYearCliff = new BigNumber(1665082800); // 10/6/2022
+const vestingThreeYearEnd = new BigNumber(1696618800); // 10/6/2023
 
 const func: DeployFunction = async function (bre: BuidlerRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = bre;

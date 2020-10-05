@@ -20,7 +20,7 @@ export default {
     1: "0xF8523c551763FE4261A28313015267F163de7541",
   },
   DFP_MULTI_SIG: {
-    1: "",
+    1: "0x673d140Eed36385cb784e279f8759f495C97cF03",
   },
   HUMAN_FRIENDLY_NAMES: {
     1: "main-net",
