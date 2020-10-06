@@ -13,7 +13,7 @@ export default {
 
   // Admin
 
-  DAO_MULTI_SIG: {
+  TREASURY_MULTI_SIG: {
     1: "0x9467cfADC9DE245010dF95Ec6a585A506A8ad5FC",
   },
   SET_LABS: {
