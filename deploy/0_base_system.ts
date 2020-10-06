@@ -249,196 +249,92 @@ const func: DeployFunction = async function (bre: BuidlerRuntimeEnvironment) {
 
   const indexTokenInstance = await new IndexTokenFactory(ownerWallet).attach(indexTokenAddress);
 
-  // Transfer immediately vested tokens to treasury
-  const treasuryMultisigBalance = await indexTokenInstance.balanceOf(treasuryMultisigAddress);
-  if (treasuryMultisigBalance.eq(0)) {
-    const transferToTreasuryMultisigData = indexTokenInstance.interface.functions.transfer.encode([
-      treasuryMultisigAddress,
-      treasuryImmediateOwnershipAmount
-    ]);
-    const transferToTreasuryMultisigHash: any = await rawTx({
-      from: deployer,
-      to: indexTokenInstance.address,
-      data: transferToTreasuryMultisigData,
-      log: true,
-    });
-    await writeTransactionToOutputs(transferToTreasuryMultisigHash.transactionHash, "Transferred immediately vested INDEX to Treasury Multisig");
-  }
+  await transferIndexTokenFromDeployer(
+    treasuryMultisigAddress,
+    treasuryImmediateOwnershipAmount,
+    "Transferred immediately vested INDEX to Treasury Multisig"
+  );
 
-  // Transfer tokens to Merkle Distributor contract
-  const merkleDistributorRewardsBalance = await indexTokenInstance.balanceOf(merkleDistributorAddress);
-  if (merkleDistributorRewardsBalance.eq(0)) {
-    const transferToMerkleDistributorData = indexTokenInstance.interface.functions.transfer.encode([
-      merkleDistributorAddress,
-      merkleDistributorAmount,
-    ]);
-    const transferToMerkleDistributorHash: any = await rawTx({
-      from: deployer,
-      to: indexTokenInstance.address,
-      data: transferToMerkleDistributorData,
-      log: true,
-    });
-    await writeTransactionToOutputs(transferToMerkleDistributorHash.transactionHash, "Transferred INDEX to Merkle Distributor");
-  }
+  await transferIndexTokenFromDeployer(
+    merkleDistributorAddress,
+    merkleDistributorAmount,
+    "Transferred INDEX to Merkle Distributor"
+  );
 
-  // Transfer tokens to Uniswap LP staking rewards contract
-  const stakingRewardsBalance = await indexTokenInstance.balanceOf(stakingRewardsAddress);
-  if (stakingRewardsBalance.eq(0)) {
-    const transferToStakingRewardData = indexTokenInstance.interface.functions.transfer.encode([
-      stakingRewardsAddress,
-      uniswapLPRewardAmount
-    ]);
-    const transferToStakingRewardHash: any = await rawTx({
-      from: deployer,
-      to: indexTokenInstance.address,
-      data: transferToStakingRewardData,
-      log: true,
-    });
-    await writeTransactionToOutputs(transferToStakingRewardHash.transactionHash, "Transferred INDEX to Uniswap LP StakingRewards");
-  }
+  await transferIndexTokenFromDeployer(
+    stakingRewardsAddress,
+    uniswapLPRewardAmount,
+    "Transferred INDEX to Uniswap LP StakingRewards"
+  );
 
-  // Transfer tokens to Treasury 1 year vesting contract
-  const treasuryOneYearOwnerBalance = await indexTokenInstance.balanceOf(treasuryOneYearVestingAddress);
-  if (treasuryOneYearOwnerBalance.eq(0)) {
-    const transferToTreasuryOwnerData = indexTokenInstance.interface.functions.transfer.encode([
-      treasuryOneYearVestingAddress,
-      treasuryOneYearOwnershipAmount
-    ]);
-    const transferToTreasuryOwnerHash: any = await rawTx({
-      from: deployer,
-      to: indexTokenInstance.address,
-      data: transferToTreasuryOwnerData,
-      log: true,
-    });
-    await writeTransactionToOutputs(transferToTreasuryOwnerHash.transactionHash, "Transferred INDEX to Treasury 1yr vesting contract");
-  }
+  await transferIndexTokenFromDeployer(
+    treasuryOneYearVestingAddress,
+    treasuryOneYearOwnershipAmount,
+    "Transferred INDEX to Treasury 1yr vesting contract"
+  );
 
-  // Transfer tokens to Treasury 2 year vesting contract
-  const treasuryTwoYearOwnerBalance = await indexTokenInstance.balanceOf(treasuryTwoYearVestingAddress);
-  if (treasuryTwoYearOwnerBalance.eq(0)) {
-    const transferToTreasuryOwnerData = indexTokenInstance.interface.functions.transfer.encode([
-      treasuryTwoYearVestingAddress,
-      treasuryTwoYearOwnershipAmount
-    ]);
-    const transferToTreasuryOwnerHash: any = await rawTx({
-      from: deployer,
-      to: indexTokenInstance.address,
-      data: transferToTreasuryOwnerData,
-      log: true,
-    });
-    await writeTransactionToOutputs(transferToTreasuryOwnerHash.transactionHash, "Transferred INDEX to Treasury 2yr vesting contract");
-  }
+  await transferIndexTokenFromDeployer(
+    treasuryTwoYearVestingAddress,
+    treasuryTwoYearOwnershipAmount,
+    "Transferred INDEX to Treasury 2yr vesting contract"
+  );
 
-  // Transfer tokens to Treasury 3 year vesting contract
-  const treasuryThreeYearOwnerBalance = await indexTokenInstance.balanceOf(treasuryThreeYearVestingAddress);
-  if (treasuryThreeYearOwnerBalance.eq(0)) {
-    const transferToTreasuryOwnerData = indexTokenInstance.interface.functions.transfer.encode([
-      treasuryThreeYearVestingAddress,
-      treasuryThreeYearOwnershipAmount
-    ]);
-    const transferToTreasuryOwnerHash: any = await rawTx({
-      from: deployer,
-      to: indexTokenInstance.address,
-      data: transferToTreasuryOwnerData,
-      log: true,
-    });
-    await writeTransactionToOutputs(transferToTreasuryOwnerHash.transactionHash, "Transferred INDEX to Treasury 2yr vesting contract");
-  }
+  await transferIndexTokenFromDeployer(
+    treasuryThreeYearVestingAddress,
+    treasuryThreeYearOwnershipAmount,
+    "Transferred INDEX to Treasury 3yr vesting contract"
+  );
 
-  // Transfer tokens to Set Labs 1yr vesting contract
-  const setLabsOneYearBalance = await indexTokenInstance.balanceOf(setLabsOneYearVestingAddress);
-  if (setLabsOneYearBalance.eq(0)) {
-    const transferToSetLabsData = indexTokenInstance.interface.functions.transfer.encode([
-      setLabsOneYearVestingAddress,
-      setLabsOneYearOwnershipAmount
-    ]);
-    const transferToSetLabsHash: any = await rawTx({
-      from: deployer,
-      to: indexTokenInstance.address,
-      data: transferToSetLabsData,
-      log: true,
-    });
-    await writeTransactionToOutputs(transferToSetLabsHash.transactionHash, "Transferred INDEX to Set Labs 1yr vesting contract");
-  }
+  await transferIndexTokenFromDeployer(
+    setLabsOneYearVestingAddress,
+    setLabsOneYearOwnershipAmount,
+    "Transferred INDEX to Set Labs 3yr vesting contract"
+  );
 
-  // Transfer tokens to Set Labs 2yr vesting contract
-  const setLabsTwoYearBalance = await indexTokenInstance.balanceOf(setLabsTwoYearVestingAddress);
-  if (setLabsTwoYearBalance.eq(0)) {
-    const transferToSetLabsData = indexTokenInstance.interface.functions.transfer.encode([
-      setLabsTwoYearVestingAddress,
-      setLabsTwoYearOwnershipAmount
-    ]);
-    const transferToSetLabsHash: any = await rawTx({
-      from: deployer,
-      to: indexTokenInstance.address,
-      data: transferToSetLabsData,
-      log: true,
-    });
-    await writeTransactionToOutputs(transferToSetLabsHash.transactionHash, "Transferred INDEX to Set Labs 2yr vesting contract");
-  }
+  await transferIndexTokenFromDeployer(
+    setLabsTwoYearVestingAddress,
+    setLabsTwoYearOwnershipAmount,
+    "Transferred INDEX to Set Labs 3yr vesting contract"
+  );
 
-  // Transfer tokens to Set Labs 3yr vesting contract
-  const setLabsThreeYearBalance = await indexTokenInstance.balanceOf(setLabsThreeYearVestingAddress);
-  if (setLabsThreeYearBalance.eq(0)) {
-    const transferToSetLabsData = indexTokenInstance.interface.functions.transfer.encode([
-      setLabsThreeYearVestingAddress,
-      setLabsThreeYearOwnershipAmount
-    ]);
-    const transferToSetLabsHash: any = await rawTx({
-      from: deployer,
-      to: indexTokenInstance.address,
-      data: transferToSetLabsData,
-      log: true,
-    });
-    await writeTransactionToOutputs(transferToSetLabsHash.transactionHash, "Transferred INDEX to Set Labs 3yr vesting contract");
-  }
+  await transferIndexTokenFromDeployer(
+    setLabsThreeYearVestingAddress,
+    setLabsThreeYearOwnershipAmount,
+    "Transferred INDEX to Set Labs 3yr vesting contract"
+  );
 
-  // Transfer tokens to DFP 1yr vesting contract
-  const dfpOneYearBalance = await indexTokenInstance.balanceOf(dfpOneYearVestingAddress);
-  if (dfpOneYearBalance.eq(0)) {
-    const transferToDFPData = indexTokenInstance.interface.functions.transfer.encode([
-      dfpOneYearVestingAddress,
-      dfpOneYearOwnershipAmount
-    ]);
-    const transferToDFPHash: any = await rawTx({
-      from: deployer,
-      to: indexTokenInstance.address,
-      data: transferToDFPData,
-      log: true,
-    });
-    await writeTransactionToOutputs(transferToDFPHash.transactionHash, "Transferred INDEX to DFP 1yr vesting contract");
-  }
+  await transferIndexTokenFromDeployer(
+    dfpOneYearVestingAddress,
+    dfpOneYearOwnershipAmount,
+    "Transferred INDEX to DFP 1yr vesting contract"
+  );
 
-  // Transfer tokens to DFP 2yr vesting contract
-  const dfpTwoYearBalance = await indexTokenInstance.balanceOf(dfpTwoYearVestingAddress);
-  if (dfpTwoYearBalance.eq(0)) {
-    const transferToDFPData = indexTokenInstance.interface.functions.transfer.encode([
-      dfpTwoYearVestingAddress,
-      dfpTwoYearOwnershipAmount
-    ]);
-    const transferToDFPHash: any = await rawTx({
-      from: deployer,
-      to: indexTokenInstance.address,
-      data: transferToDFPData,
-      log: true,
-    });
-    await writeTransactionToOutputs(transferToDFPHash.transactionHash, "Transferred INDEX to DFP 2yr vesting contract");
-  }
+  await transferIndexTokenFromDeployer(
+    dfpTwoYearVestingAddress,
+    dfpTwoYearOwnershipAmount,
+    "Transferred INDEX to DFP 2yr vesting contract"
+  );
 
-  // Transfer tokens to DFP 3yr vesting contract
-  const dfpThreeYearBalance = await indexTokenInstance.balanceOf(dfpThreeYearVestingAddress);
-  if (dfpThreeYearBalance.eq(0)) {
-    const transferToDFPData = indexTokenInstance.interface.functions.transfer.encode([
-      dfpThreeYearVestingAddress,
-      dfpThreeYearOwnershipAmount
-    ]);
-    const transferToDFPHash: any = await rawTx({
-      from: deployer,
-      to: indexTokenInstance.address,
-      data: transferToDFPData,
-      log: true,
-    });
-    await writeTransactionToOutputs(transferToDFPHash.transactionHash, "Transferred INDEX to DFP 3yr vesting contract");
+  await transferIndexTokenFromDeployer(
+    dfpThreeYearVestingAddress,
+    dfpThreeYearOwnershipAmount,
+    "Transferred INDEX to DFP 3yr vesting contract"
+  );
+
+  async function transferIndexTokenFromDeployer(recipient: Address, quantity: BigNumber, comment: string): Promise<void> {
+    const recipientBalance = await indexTokenInstance.balanceOf(recipient);
+    if (recipientBalance.eq(0)) {
+      const transferData = indexTokenInstance.interface.functions.transfer.encode([
+        recipient,
+        quantity
+      ]);
+      const transferToDFPHash: any = await rawTx({
+        from: deployer,
+        to: indexTokenInstance.address,
+        data: transferData,
+        log: true,
+      });
+      await writeTransactionToOutputs(transferToDFPHash.transactionHash, comment);    
   }
 };
 export default func;
