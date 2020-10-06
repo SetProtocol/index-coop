@@ -1,9 +1,9 @@
 pragma solidity ^0.6.10;
 pragma experimental ABIEncoderV2;
 
-contract IndexDAO {
+contract IndexToken {
     /// @notice EIP-20 token name for this token
-    string public constant name = "IndexDAO";
+    string public constant name = "Index";
 
     /// @notice EIP-20 token symbol for this token
     string public constant symbol = "INDEX";

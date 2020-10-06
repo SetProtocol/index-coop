@@ -33,11 +33,6 @@ const config: BuidlerConfig = {
       // @ts-ignore
       accounts: [`0x${process.env.KOVAN_DEPLOY_PRIVATE_KEY}`],
     },
-    staging_mainnet: {
-      url: "https://mainnet.infura.io/v3/" + process.env.INFURA_TOKEN,
-      // @ts-ignore
-      accounts: [`0x${process.env.STAGING_MAINNET_DEPLOY_PRIVATE_KEY}`],
-    },
     production: {
       url: "https://mainnet.infura.io/v3/" + process.env.INFURA_TOKEN,
       // @ts-ignore
