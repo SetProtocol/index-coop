@@ -21,7 +21,7 @@ import { MERKLE_DISTRIBUTION } from "@utils/deploys/merkleDistribution";
 import { ether, parseBalanceMap } from "@utils/index";
 import { IndexTokenFactory } from "../typechain/IndexTokenFactory";
 
-import { Account, DistributionFormat } from "@utils/types";
+import { Account, Address, DistributionFormat } from "@utils/types";
 
 const EMPTY_ARGS: any[] = [];
 
@@ -31,7 +31,9 @@ const merkleRootObject = parseBalanceMap(distributionArray); // Merkle root obje
 const uniswapLPRewardAmount = ether(900000); // 900k tokens; 9% supply
 const merkleDistributorAmount = ether(100000); // 100k tokens; 1% supply
 
-const treasuryImmediateOwnershipAmount = ether(1250000); // 1.25m tokens; 12.5% supply
+const treasuryImmediateOwnershipAmount = ether(500000); // 500k tokens; 5% supply
+
+const treasuryIndexMethodologyOwnershipAmount = ether(750000) // 750k tokens; 7.5% supply
 
 // Treasury vesting amounts 47.5%
 const treasuryOneYearOwnershipAmount = ether(2375000); // 2.375m tokens; 23.75% supply
@@ -49,6 +51,11 @@ const dfpTwoYearOwnershipAmount = ether(60000); // 60k tokens; 0.6% supply
 const dfpThreeYearOwnershipAmount = ether(40000); // 40k tokens; 0.4% supply
 
 // Vesting parameters
+
+// Index methodology 18 month vesting
+const vestingIndexMethodologyBegin = new BigNumber(1607281200); // 12/06/2020 @ 7:00pm UTC
+const vestingIndexMethodologyCliff = new BigNumber(1607281200); // 12/06/2020 @ 7:00pm UTC
+const vestingIndexMethodologyEnd = new BigNumber(1653937200); // 5/30/2022 @ 7:00pm UTC
 
 // #1 1 year vesting
 const vestingOneYearBegin = new BigNumber(1602010800); // 10/6/2020 Tuesday 12PM PST
@@ -145,105 +152,126 @@ const func: DeployFunction = async function (bre: BuidlerRuntimeEnvironment) {
     await writeContractAndTransactionToOutputs("StakingRewards", stakingRewardsDeploy.address, stakingRewardsDeploy.receipt.transactionHash, "Deployed StakingRewards");
   }
   const stakingRewardsAddress = await getContractAddress("StakingRewards");
-  
+
+  // Deploy Treasury index methodology vesting contract
+  const treasuryIndexMethodologyVestingAddress = await deployVesting(
+    "IndexMethodologyTreasuryVesting",
+    indexTokenAddress,
+    treasuryMultisigAddress,
+    treasuryIndexMethodologyOwnershipAmount,
+    vestingIndexMethodologyBegin,
+    vestingIndexMethodologyCliff,
+    vestingIndexMethodologyEnd,
+    "Deploy Index Methodology Treasury Vesting"
+  );
+
   // Deploy Treasury 1 year treasury vesting contract
-  const checkOneYearTreasuryVestingAddress = await getContractAddress("OneYearTreasuryVesting");
-  if (checkOneYearTreasuryVestingAddress === "") {
-    const treasuryVestingDeploy = await deploy(
-      "Vesting",
-      { from: deployer, args: [indexTokenAddress, treasuryMultisigAddress, treasuryOneYearOwnershipAmount, vestingOneYearBegin, vestingOneYearCliff, vestingOneYearEnd], log: true }
-    );
-    await writeContractAndTransactionToOutputs("OneYearTreasuryVesting", treasuryVestingDeploy.address, treasuryVestingDeploy.receipt.transactionHash, "Deployed 1yr Treasury Vesting");
-  }
-  const treasuryOneYearVestingAddress = await getContractAddress("OneYearTreasuryVesting");
+  const treasuryOneYearVestingAddress = await deployVesting(
+    "OneYearTreasuryVesting",
+    indexTokenAddress,
+    treasuryMultisigAddress,
+    treasuryOneYearOwnershipAmount,
+    vestingOneYearBegin,
+    vestingOneYearCliff,
+    vestingOneYearEnd,
+    "Deploy Treasury 1yr Vesting"
+  );
 
   // Deploy Treasury 2 year treasury vesting contract
-  const checkTwoYearTreasuryVestingAddress = await getContractAddress("TwoYearTreasuryVesting");
-  if (checkTwoYearTreasuryVestingAddress === "") {
-    const treasuryVestingDeploy = await deploy(
-      "Vesting",
-      { from: deployer, args: [indexTokenAddress, treasuryMultisigAddress, treasuryTwoYearOwnershipAmount, vestingTwoYearBegin, vestingTwoYearCliff, vestingTwoYearEnd], log: true }
-    );
-    await writeContractAndTransactionToOutputs("TwoYearTreasuryVesting", treasuryVestingDeploy.address, treasuryVestingDeploy.receipt.transactionHash, "Deployed 2yr Treasury Vesting");
-  }
-  const treasuryTwoYearVestingAddress = await getContractAddress("TwoYearTreasuryVesting");
+  const treasuryTwoYearVestingAddress = await deployVesting(
+    "TwoYearTreasuryVesting",
+    indexTokenAddress,
+    treasuryMultisigAddress,
+    treasuryTwoYearOwnershipAmount,
+    vestingTwoYearBegin,
+    vestingTwoYearCliff,
+    vestingTwoYearEnd,
+    "Deploy Treasury 2yr Vesting"
+  );
 
   // Deploy Treasury 3 year treasury vesting contract
-  const checkThreeYearTreasuryVestingAddress = await getContractAddress("ThreeYearTreasuryVesting");
-  if (checkThreeYearTreasuryVestingAddress === "") {
-    const treasuryVestingDeploy = await deploy(
-      "Vesting",
-      { from: deployer, args: [indexTokenAddress, treasuryMultisigAddress, treasuryThreeYearOwnershipAmount, vestingThreeYearBegin, vestingThreeYearCliff, vestingThreeYearEnd], log: true }
-    );
-    await writeContractAndTransactionToOutputs("ThreeYearTreasuryVesting", treasuryVestingDeploy.address, treasuryVestingDeploy.receipt.transactionHash, "Deployed 3yr Treasury Vesting");
-  }
-  const treasuryThreeYearVestingAddress = await getContractAddress("ThreeYearTreasuryVesting");
+  const treasuryThreeYearVestingAddress = await deployVesting(
+    "ThreeYearTreasuryVesting",
+    indexTokenAddress,
+    treasuryMultisigAddress,
+    treasuryThreeYearOwnershipAmount,
+    vestingThreeYearBegin,
+    vestingThreeYearCliff,
+    vestingThreeYearEnd,
+    "Deploy Treasury 3yr Vesting"
+  );
 
   // Deploy Set Labs 1 year vesting contract
-  const checkOneYearSetLabsVestingAddress = await getContractAddress("OneYearSetLabsVesting");
-  if (checkOneYearSetLabsVestingAddress === "") {
-    const setLabsVestingDeploy = await deploy(
-      "Vesting",
-      { from: deployer, args: [indexTokenAddress, setLabsAddress, setLabsOneYearOwnershipAmount, vestingOneYearBegin, vestingOneYearCliff, vestingOneYearEnd], log: true }
-    );
-    await writeContractAndTransactionToOutputs("OneYearSetLabsVesting", setLabsVestingDeploy.address, setLabsVestingDeploy.receipt.transactionHash, "Deployed 1yr Set Labs Vesting");
-  }
-  const setLabsOneYearVestingAddress = await getContractAddress("OneYearSetLabsVesting");
+  const setLabsOneYearVestingAddress = await deployVesting(
+    "OneYearSetLabsVesting",
+    indexTokenAddress,
+    setLabsAddress,
+    setLabsOneYearOwnershipAmount,
+    vestingOneYearBegin,
+    vestingOneYearCliff,
+    vestingOneYearEnd,
+    "Deploy Set Labs 1yr Vesting"
+  );
 
   // Deploy Set Labs 2 year vesting contract
-  const checkTwoYearSetLabsVestingAddress = await getContractAddress("TwoYearSetLabsVesting");
-  if (checkTwoYearSetLabsVestingAddress === "") {
-    const setLabsVestingDeploy = await deploy(
-      "Vesting",
-      { from: deployer, args: [indexTokenAddress, setLabsAddress, setLabsTwoYearOwnershipAmount, vestingTwoYearBegin, vestingTwoYearCliff, vestingTwoYearEnd], log: true }
-    );
-    await writeContractAndTransactionToOutputs("TwoYearSetLabsVesting", setLabsVestingDeploy.address, setLabsVestingDeploy.receipt.transactionHash, "Deployed 1yr Set Labs Vesting");
-  }
-  const setLabsTwoYearVestingAddress = await getContractAddress("TwoYearSetLabsVesting");
+  const setLabsTwoYearVestingAddress = await deployVesting(
+    "TwoYearSetLabsVesting",
+    indexTokenAddress,
+    setLabsAddress,
+    setLabsTwoYearOwnershipAmount,
+    vestingTwoYearBegin,
+    vestingTwoYearCliff,
+    vestingTwoYearEnd,
+    "Deploy Set Labs 2yr Vesting"
+  );
 
   // Deploy Set Labs 3 year vesting contract
-  const checkThreeYearSetLabsVestingAddress = await getContractAddress("ThreeYearSetLabsVesting");
-  if (checkThreeYearSetLabsVestingAddress === "") {
-    const setLabsVestingDeploy = await deploy(
-      "Vesting",
-      { from: deployer, args: [indexTokenAddress, setLabsAddress, setLabsThreeYearOwnershipAmount, vestingThreeYearBegin, vestingThreeYearCliff, vestingThreeYearEnd], log: true }
-    );
-    await writeContractAndTransactionToOutputs("ThreeYearSetLabsVesting", setLabsVestingDeploy.address, setLabsVestingDeploy.receipt.transactionHash, "Deployed 1yr Set Labs Vesting");
-  }
-  const setLabsThreeYearVestingAddress = await getContractAddress("ThreeYearSetLabsVesting");
+  const setLabsThreeYearVestingAddress = await deployVesting(
+    "ThreeYearSetLabsVesting",
+    indexTokenAddress,
+    setLabsAddress,
+    setLabsThreeYearOwnershipAmount,
+    vestingThreeYearBegin,
+    vestingThreeYearCliff,
+    vestingThreeYearEnd,
+    "Deploy Set Labs 3yr Vesting"
+  );
 
   // Deploy DFP 1 year vesting contract
-  const checkOneYearDFPVestingAddress = await getContractAddress("OneYearDFPVesting");
-  if (checkOneYearDFPVestingAddress === "") {
-    const dfpVestingDeploy = await deploy(
-      "Vesting",
-      { from: deployer, args: [indexTokenAddress, dfpMultisigAddress, dfpOneYearOwnershipAmount, vestingOneYearBegin, vestingOneYearCliff, vestingOneYearEnd], log: true }
-    );
-    await writeContractAndTransactionToOutputs("OneYearDFPVesting", dfpVestingDeploy.address, dfpVestingDeploy.receipt.transactionHash, "Deployed 1yr DFP Vesting");
-  }
-  const dfpOneYearVestingAddress = await getContractAddress("OneYearDFPVesting");
+  const dfpOneYearVestingAddress = await deployVesting(
+    "OneYearDFPVesting",
+    indexTokenAddress,
+    dfpMultisigAddress,
+    dfpOneYearOwnershipAmount,
+    vestingOneYearBegin,
+    vestingOneYearCliff,
+    vestingOneYearEnd,
+    "Deploy DFP 1yr Vesting"
+  );
 
   // Deploy DFP 2 year vesting contract
-  const checkTwoYearDFPVestingAddress = await getContractAddress("TwoYearDFPVesting");
-  if (checkTwoYearDFPVestingAddress === "") {
-    const dfpVestingDeploy = await deploy(
-      "Vesting",
-      { from: deployer, args: [indexTokenAddress, dfpMultisigAddress, dfpTwoYearOwnershipAmount, vestingTwoYearBegin, vestingTwoYearCliff, vestingTwoYearEnd], log: true }
-    );
-    await writeContractAndTransactionToOutputs("TwoYearDFPVesting", dfpVestingDeploy.address, dfpVestingDeploy.receipt.transactionHash, "Deployed 1yr DFP Vesting");
-  }
-  const dfpTwoYearVestingAddress = await getContractAddress("TwoYearDFPVesting");
+  const dfpTwoYearVestingAddress = await deployVesting(
+    "TwoYearDFPVesting",
+    indexTokenAddress,
+    dfpMultisigAddress,
+    dfpTwoYearOwnershipAmount,
+    vestingTwoYearBegin,
+    vestingTwoYearCliff,
+    vestingTwoYearEnd,
+    "Deploy DFP 1yr Vesting"
+  );
 
   // Deploy DFP 3 year vesting contract
-  const checkThreeYearDFPVestingAddress = await getContractAddress("ThreeYearDFPVesting");
-  if (checkThreeYearDFPVestingAddress === "") {
-    const dfpVestingDeploy = await deploy(
-      "Vesting",
-      { from: deployer, args: [indexTokenAddress, dfpMultisigAddress, dfpThreeYearOwnershipAmount, vestingThreeYearBegin, vestingThreeYearCliff, vestingThreeYearEnd], log: true }
-    );
-    await writeContractAndTransactionToOutputs("ThreeYearDFPVesting", dfpVestingDeploy.address, dfpVestingDeploy.receipt.transactionHash, "Deployed 1yr DFP Vesting");
-  }
-  const dfpThreeYearVestingAddress = await getContractAddress("ThreeYearDFPVesting");
+  const dfpThreeYearVestingAddress = await deployVesting(
+    "ThreeYearDFPVesting",
+    indexTokenAddress,
+    dfpMultisigAddress,
+    dfpThreeYearOwnershipAmount,
+    vestingThreeYearBegin,
+    vestingThreeYearCliff,
+    vestingThreeYearEnd,
+    "Deploy DFP 1yr Vesting"
+  );
 
   // Transfer INDEX tokens
 
@@ -253,6 +281,12 @@ const func: DeployFunction = async function (bre: BuidlerRuntimeEnvironment) {
     treasuryMultisigAddress,
     treasuryImmediateOwnershipAmount,
     "Transferred immediately vested INDEX to Treasury Multisig"
+  );
+
+  await transferIndexTokenFromDeployer(
+    treasuryIndexMethodologyVestingAddress,
+    treasuryIndexMethodologyOwnershipAmount,
+    "Transferred INDEX to index methodology vesting contract"
   );
 
   await transferIndexTokenFromDeployer(
@@ -288,13 +322,13 @@ const func: DeployFunction = async function (bre: BuidlerRuntimeEnvironment) {
   await transferIndexTokenFromDeployer(
     setLabsOneYearVestingAddress,
     setLabsOneYearOwnershipAmount,
-    "Transferred INDEX to Set Labs 3yr vesting contract"
+    "Transferred INDEX to Set Labs 1yr vesting contract"
   );
 
   await transferIndexTokenFromDeployer(
     setLabsTwoYearVestingAddress,
     setLabsTwoYearOwnershipAmount,
-    "Transferred INDEX to Set Labs 3yr vesting contract"
+    "Transferred INDEX to Set Labs 2yr vesting contract"
   );
 
   await transferIndexTokenFromDeployer(
@@ -321,6 +355,27 @@ const func: DeployFunction = async function (bre: BuidlerRuntimeEnvironment) {
     "Transferred INDEX to DFP 3yr vesting contract"
   );
 
+  async function deployVesting(
+    contractName: string,
+    token: Address,
+    recipient: Address,
+    vestingAmount: BigNumber,
+    vestingBegin: BigNumber,
+    vestingCliff: BigNumber,
+    vestingEnd: BigNumber,
+    description: string,
+  ): Promise<Address> {
+    const checkVestingAddress = await getContractAddress(contractName);
+    if (checkVestingAddress === "") {
+      const vestingDeploy = await deploy(
+        "Vesting",
+        { from: deployer, args: [indexTokenAddress, recipient, vestingAmount, vestingBegin, vestingCliff, vestingEnd], log: true }
+      );
+      await writeContractAndTransactionToOutputs(contractName, vestingDeploy.address, vestingDeploy.receipt.transactionHash, description);
+    }
+    return await getContractAddress(contractName);
+  }
+
   async function transferIndexTokenFromDeployer(recipient: Address, quantity: BigNumber, comment: string): Promise<void> {
     const recipientBalance = await indexTokenInstance.balanceOf(recipient);
     if (recipientBalance.eq(0)) {
@@ -334,7 +389,8 @@ const func: DeployFunction = async function (bre: BuidlerRuntimeEnvironment) {
         data: transferData,
         log: true,
       });
-      await writeTransactionToOutputs(transferToDFPHash.transactionHash, comment);    
+      await writeTransactionToOutputs(transferToDFPHash.transactionHash, comment);
+    }
   }
 };
 export default func;
