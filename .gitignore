@@ -8,9 +8,9 @@
 /flatten
 /deployments/kovan
 /deployments/localhost_31337
-/deployments/staging_mainnet_1
 /deployments/production_1
 /deployments/50-development.json
+/deployments/42-staging.json
 /node_modules
 /transpiled
 /types/generated/*

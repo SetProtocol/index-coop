@@ -36,19 +36,19 @@ const treasuryImmediateOwnershipAmount = ether(500000); // 500k tokens; 5% suppl
 const treasuryIndexMethodologyOwnershipAmount = ether(750000) // 750k tokens; 7.5% supply
 
 // Treasury vesting amounts 47.5%
-const treasuryOneYearOwnershipAmount = ether(2375000); // 2.375m tokens; 23.75% supply
-const treasuryTwoYearOwnershipAmount = ether(1425000); // 1.425m tokens; 14.25% supply
-const treasuryThreeYearOwnershipAmount = ether(950000); // 950k tokens; 9.5% supply
+const treasuryYearOneOwnershipAmount = ether(2375000); // 2.375m tokens; 23.75% supply
+const treasuryYearTwoOwnershipAmount = ether(1425000); // 1.425m tokens; 14.25% supply
+const treasuryYearThreeOwnershipAmount = ether(950000); // 950k tokens; 9.5% supply
 
 // Set Labs vesting amounts 28%
-const setLabsOneYearOwnershipAmount = ether(1400000); // 1.4m tokens; 14% supply
-const setLabsTwoYearOwnershipAmount = ether(840000); // 840k tokens; 8.4% supply
-const setLabsThreeYearOwnershipAmount = ether(560000); // 560k tokens; 5.6% supply
+const setLabsYearOneOwnershipAmount = ether(1400000); // 1.4m tokens; 14% supply
+const setLabsYearTwoOwnershipAmount = ether(840000); // 840k tokens; 8.4% supply
+const setLabsYearThreeOwnershipAmount = ether(560000); // 560k tokens; 5.6% supply
 
 // DeFi Pulse vesting amounts 2%
-const dfpOneYearOwnershipAmount = ether(100000); // 100k tokens; 1% supply
-const dfpTwoYearOwnershipAmount = ether(60000); // 60k tokens; 0.6% supply
-const dfpThreeYearOwnershipAmount = ether(40000); // 40k tokens; 0.4% supply
+const dfpYearOneOwnershipAmount = ether(100000); // 100k tokens; 1% supply
+const dfpYearTwoOwnershipAmount = ether(60000); // 60k tokens; 0.6% supply
+const dfpYearThreeOwnershipAmount = ether(40000); // 40k tokens; 0.4% supply
 
 // Vesting parameters
 
@@ -58,19 +58,19 @@ const vestingIndexMethodologyCliff = new BigNumber(1607281200); // 12/06/2020 @ 
 const vestingIndexMethodologyEnd = new BigNumber(1653937200); // 5/30/2022 @ 7:00pm UTC
 
 // #1 1 year vesting
-const vestingOneYearBegin = new BigNumber(1602010800); // 10/6/2020 Tuesday 12PM PST
-const vestingOneYearCliff = new BigNumber(1602010800); // 10/6/2020 Tuesday 12PM PST
-const vestingOneYearEnd = new BigNumber(1633546800); // 10/6/2021
+const vestingYearOneBegin = new BigNumber(1602010800); // 10/6/2020 Tuesday 12PM PST
+const vestingYearOneCliff = new BigNumber(1602010800); // 10/6/2020 Tuesday 12PM PST
+const vestingYearOneEnd = new BigNumber(1633546800); // 10/6/2021
 
 // #2 2 year vesting
-const vestingTwoYearBegin = new BigNumber(1633546800); // 10/6/2021
-const vestingTwoYearCliff = new BigNumber(1633546800); // 10/6/2021
-const vestingTwoYearEnd = new BigNumber(1665082800); // 10/6/2022
+const vestingYearTwoBegin = new BigNumber(1633546800); // 10/6/2021
+const vestingYearTwoCliff = new BigNumber(1633546800); // 10/6/2021
+const vestingYearTwoEnd = new BigNumber(1665082800); // 10/6/2022
 
 // #3 3 year vesting
-const vestingThreeYearBegin = new BigNumber(1665082800); // 10/6/2022
-const vestingThreeYearCliff = new BigNumber(1665082800); // 10/6/2022
-const vestingThreeYearEnd = new BigNumber(1696618800); // 10/6/2023
+const vestingYearThreeBegin = new BigNumber(1665082800); // 10/6/2022
+const vestingYearThreeCliff = new BigNumber(1665082800); // 10/6/2022
+const vestingYearThreeEnd = new BigNumber(1696618800); // 10/6/2023
 
 const func: DeployFunction = async function (bre: BuidlerRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = bre;
@@ -166,110 +166,110 @@ const func: DeployFunction = async function (bre: BuidlerRuntimeEnvironment) {
   );
 
   // Deploy Treasury 1 year treasury vesting contract
-  const treasuryOneYearVestingAddress = await deployVesting(
-    "OneYearTreasuryVesting",
+  const treasuryYearOneVestingAddress = await deployVesting(
+    "YearOneTreasuryVesting",
     indexTokenAddress,
     treasuryMultisigAddress,
-    treasuryOneYearOwnershipAmount,
-    vestingOneYearBegin,
-    vestingOneYearCliff,
-    vestingOneYearEnd,
+    treasuryYearOneOwnershipAmount,
+    vestingYearOneBegin,
+    vestingYearOneCliff,
+    vestingYearOneEnd,
     "Deploy Treasury 1yr Vesting"
   );
 
   // Deploy Treasury 2 year treasury vesting contract
-  const treasuryTwoYearVestingAddress = await deployVesting(
-    "TwoYearTreasuryVesting",
+  const treasuryYearTwoVestingAddress = await deployVesting(
+    "YearTwoTreasuryVesting",
     indexTokenAddress,
     treasuryMultisigAddress,
-    treasuryTwoYearOwnershipAmount,
-    vestingTwoYearBegin,
-    vestingTwoYearCliff,
-    vestingTwoYearEnd,
+    treasuryYearTwoOwnershipAmount,
+    vestingYearTwoBegin,
+    vestingYearTwoCliff,
+    vestingYearTwoEnd,
     "Deploy Treasury 2yr Vesting"
   );
 
   // Deploy Treasury 3 year treasury vesting contract
-  const treasuryThreeYearVestingAddress = await deployVesting(
-    "ThreeYearTreasuryVesting",
+  const treasuryYearThreeVestingAddress = await deployVesting(
+    "YearThreeTreasuryVesting",
     indexTokenAddress,
     treasuryMultisigAddress,
-    treasuryThreeYearOwnershipAmount,
-    vestingThreeYearBegin,
-    vestingThreeYearCliff,
-    vestingThreeYearEnd,
+    treasuryYearThreeOwnershipAmount,
+    vestingYearThreeBegin,
+    vestingYearThreeCliff,
+    vestingYearThreeEnd,
     "Deploy Treasury 3yr Vesting"
   );
 
   // Deploy Set Labs 1 year vesting contract
-  const setLabsOneYearVestingAddress = await deployVesting(
-    "OneYearSetLabsVesting",
+  const setLabsYearOneVestingAddress = await deployVesting(
+    "YearOneSetLabsVesting",
     indexTokenAddress,
     setLabsAddress,
-    setLabsOneYearOwnershipAmount,
-    vestingOneYearBegin,
-    vestingOneYearCliff,
-    vestingOneYearEnd,
+    setLabsYearOneOwnershipAmount,
+    vestingYearOneBegin,
+    vestingYearOneCliff,
+    vestingYearOneEnd,
     "Deploy Set Labs 1yr Vesting"
   );
 
   // Deploy Set Labs 2 year vesting contract
-  const setLabsTwoYearVestingAddress = await deployVesting(
-    "TwoYearSetLabsVesting",
+  const setLabsYearTwoVestingAddress = await deployVesting(
+    "YearTwoSetLabsVesting",
     indexTokenAddress,
     setLabsAddress,
-    setLabsTwoYearOwnershipAmount,
-    vestingTwoYearBegin,
-    vestingTwoYearCliff,
-    vestingTwoYearEnd,
+    setLabsYearTwoOwnershipAmount,
+    vestingYearTwoBegin,
+    vestingYearTwoCliff,
+    vestingYearTwoEnd,
     "Deploy Set Labs 2yr Vesting"
   );
 
   // Deploy Set Labs 3 year vesting contract
-  const setLabsThreeYearVestingAddress = await deployVesting(
-    "ThreeYearSetLabsVesting",
+  const setLabsYearThreeVestingAddress = await deployVesting(
+    "YearThreeSetLabsVesting",
     indexTokenAddress,
     setLabsAddress,
-    setLabsThreeYearOwnershipAmount,
-    vestingThreeYearBegin,
-    vestingThreeYearCliff,
-    vestingThreeYearEnd,
+    setLabsYearThreeOwnershipAmount,
+    vestingYearThreeBegin,
+    vestingYearThreeCliff,
+    vestingYearThreeEnd,
     "Deploy Set Labs 3yr Vesting"
   );
 
   // Deploy DFP 1 year vesting contract
-  const dfpOneYearVestingAddress = await deployVesting(
-    "OneYearDFPVesting",
+  const dfpYearOneVestingAddress = await deployVesting(
+    "YearOneDFPVesting",
     indexTokenAddress,
     dfpMultisigAddress,
-    dfpOneYearOwnershipAmount,
-    vestingOneYearBegin,
-    vestingOneYearCliff,
-    vestingOneYearEnd,
+    dfpYearOneOwnershipAmount,
+    vestingYearOneBegin,
+    vestingYearOneCliff,
+    vestingYearOneEnd,
     "Deploy DFP 1yr Vesting"
   );
 
   // Deploy DFP 2 year vesting contract
-  const dfpTwoYearVestingAddress = await deployVesting(
-    "TwoYearDFPVesting",
+  const dfpYearTwoVestingAddress = await deployVesting(
+    "YearTwoDFPVesting",
     indexTokenAddress,
     dfpMultisigAddress,
-    dfpTwoYearOwnershipAmount,
-    vestingTwoYearBegin,
-    vestingTwoYearCliff,
-    vestingTwoYearEnd,
+    dfpYearTwoOwnershipAmount,
+    vestingYearTwoBegin,
+    vestingYearTwoCliff,
+    vestingYearTwoEnd,
     "Deploy DFP 1yr Vesting"
   );
 
   // Deploy DFP 3 year vesting contract
-  const dfpThreeYearVestingAddress = await deployVesting(
-    "ThreeYearDFPVesting",
+  const dfpYearThreeVestingAddress = await deployVesting(
+    "YearThreeDFPVesting",
     indexTokenAddress,
     dfpMultisigAddress,
-    dfpThreeYearOwnershipAmount,
-    vestingThreeYearBegin,
-    vestingThreeYearCliff,
-    vestingThreeYearEnd,
+    dfpYearThreeOwnershipAmount,
+    vestingYearThreeBegin,
+    vestingYearThreeCliff,
+    vestingYearThreeEnd,
     "Deploy DFP 1yr Vesting"
   );
 
@@ -302,56 +302,56 @@ const func: DeployFunction = async function (bre: BuidlerRuntimeEnvironment) {
   );
 
   await transferIndexTokenFromDeployer(
-    treasuryOneYearVestingAddress,
-    treasuryOneYearOwnershipAmount,
+    treasuryYearOneVestingAddress,
+    treasuryYearOneOwnershipAmount,
     "Transferred INDEX to Treasury 1yr vesting contract"
   );
 
   await transferIndexTokenFromDeployer(
-    treasuryTwoYearVestingAddress,
-    treasuryTwoYearOwnershipAmount,
+    treasuryYearTwoVestingAddress,
+    treasuryYearTwoOwnershipAmount,
     "Transferred INDEX to Treasury 2yr vesting contract"
   );
 
   await transferIndexTokenFromDeployer(
-    treasuryThreeYearVestingAddress,
-    treasuryThreeYearOwnershipAmount,
+    treasuryYearThreeVestingAddress,
+    treasuryYearThreeOwnershipAmount,
     "Transferred INDEX to Treasury 3yr vesting contract"
   );
 
   await transferIndexTokenFromDeployer(
-    setLabsOneYearVestingAddress,
-    setLabsOneYearOwnershipAmount,
+    setLabsYearOneVestingAddress,
+    setLabsYearOneOwnershipAmount,
     "Transferred INDEX to Set Labs 1yr vesting contract"
   );
 
   await transferIndexTokenFromDeployer(
-    setLabsTwoYearVestingAddress,
-    setLabsTwoYearOwnershipAmount,
+    setLabsYearTwoVestingAddress,
+    setLabsYearTwoOwnershipAmount,
     "Transferred INDEX to Set Labs 2yr vesting contract"
   );
 
   await transferIndexTokenFromDeployer(
-    setLabsThreeYearVestingAddress,
-    setLabsThreeYearOwnershipAmount,
+    setLabsYearThreeVestingAddress,
+    setLabsYearThreeOwnershipAmount,
     "Transferred INDEX to Set Labs 3yr vesting contract"
   );
 
   await transferIndexTokenFromDeployer(
-    dfpOneYearVestingAddress,
-    dfpOneYearOwnershipAmount,
+    dfpYearOneVestingAddress,
+    dfpYearOneOwnershipAmount,
     "Transferred INDEX to DFP 1yr vesting contract"
   );
 
   await transferIndexTokenFromDeployer(
-    dfpTwoYearVestingAddress,
-    dfpTwoYearOwnershipAmount,
+    dfpYearTwoVestingAddress,
+    dfpYearTwoOwnershipAmount,
     "Transferred INDEX to DFP 2yr vesting contract"
   );
 
   await transferIndexTokenFromDeployer(
-    dfpThreeYearVestingAddress,
-    dfpThreeYearOwnershipAmount,
+    dfpYearThreeVestingAddress,
+    dfpYearThreeOwnershipAmount,
     "Transferred INDEX to DFP 3yr vesting contract"
   );
 
