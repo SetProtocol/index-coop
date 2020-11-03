@@ -1,19 +1,27 @@
 pragma solidity ^0.6.10;
 
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ISetToken } from "../interfaces/ISetToken.sol";
 import { IIndexModule } from "../interfaces/IIndexModule.sol";
 import { IStreamingFeeModule } from "../interfaces/IStreamingFeeModule.sol";
+import { MutualUpgrade } from "../lib/MutualUpgrade.sol";
 import { PreciseUnitMath } from "../lib/PreciseUnitMath.sol";
 import { TimeLockUpgrade } from "../lib/TimeLockUpgrade.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 
-contract ICManager is TimeLockUpgrade {
+contract ICManager is TimeLockUpgrade, MutualUpgrade {
     using Address for address;
     using SafeMath for uint256;
     using PreciseUnitMath for uint256;
+
+    /* ============ Events ============ */
+
+    event FeesAccrued(
+        uint256 _totalFees,
+        uint256 _operatorTake,
+        uint256 _methodologistTake
+    );
 
     /* ============ Modifiers ============ */
 
@@ -30,17 +38,6 @@ contract ICManager is TimeLockUpgrade {
      */
     modifier onlyMethodologist() {
         require(msg.sender == methodologist, "Must be methodologist");
-        _;
-    }
-
-    /**
-     * Throws if the sender is not the SetToken operator or methodologist
-     */
-    modifier onlyOperatorOrMethodologist() {
-        require(
-            msg.sender == operator || msg.sender == methodologist,
-            "Must be operator or methodologist"
-        );
         _;
     }
 
@@ -63,18 +60,6 @@ contract ICManager is TimeLockUpgrade {
 
     // Percent in 1e18 of streamingFees sent to operator
     uint256 public operatorFeeSplit;
-
-    // Hash of (proposed feeSplit, proposing address)
-    bytes32 public proposedFeeSplitHash;
-
-    // Hash of (proposed feeRecipient, proposing address)
-    bytes32 public proposedFeeRecipientHash;
-
-    // Hash of (proposed timeLockPeriod, proposing address)
-    bytes32 public proposedTimeLockPeriodHash;
-
-    // Hash of (proposed manager, proposing address)
-    bytes32 public proposedManagerHash;
 
     /* ============ Constructor ============ */
 
@@ -105,24 +90,25 @@ contract ICManager is TimeLockUpgrade {
 
     /**
      * OPERATOR ONLY: Start rebalance in IndexModule. Set new target units, zeroing out any units for components being removed from index.
-     * Log position multiplier to adjust target units in case fees are accrued. Validate that weth is not a part of the new allocation 
-     * and that all components in current allocation are in _components array.
+     * Log position multiplier to adjust target units in case fees are accrued.
      *
-     * @param _components               Array of components in new allocation plus any components removed from old allocation
-     * @param _targetUnits              Array of target units at end of rebalance, maps to same index of component, if component
-     *                                  being removed set to 0.
-     * @param _positionMultiplier       Position multiplier when target units were calculated, needed in order to adjust target units
-     *                                  if fees accrued
+     * @param _newComponents                    Array of new components to add to allocation
+     * @param _newComponentsTargetUnits         Array of target units at end of rebalance for new components, maps to same index of component
+     * @param _oldComponentsTargetUnits         Array of target units at end of rebalance for old component, maps to same index of component,
+     *                                              if component being removed set to 0.
+     * @param _positionMultiplier               Position multiplier when target units were calculated, needed in order to adjust target units
+     *                                              if fees accrued
      */
     function startRebalance(
-        IERC20[] calldata _components,
-        uint256[] calldata _targetUnits,
+        address[] calldata _newComponents,
+        uint256[] calldata _newComponentsTargetUnits,
+        uint256[] calldata _oldComponentsTargetUnits,
         uint256 _positionMultiplier
     )
         external
         onlyOperator
     {
-        indexModule.startRebalance(_components, _targetUnits, _positionMultiplier);
+        indexModule.startRebalance(_newComponents, _newComponentsTargetUnits, _oldComponentsTargetUnits, _positionMultiplier);
     }
 
     /**
@@ -132,7 +118,7 @@ contract ICManager is TimeLockUpgrade {
      * @param _tradeMaximums         Array of trade maximums mapping to correct component
      */
     function setTradeMaximums(
-        IERC20[] calldata _components,
+        address[] calldata _components,
         uint256[] calldata _tradeMaximums
     )
         external
@@ -148,7 +134,7 @@ contract ICManager is TimeLockUpgrade {
      * @param _exchanges         Array of exchanges mapping to correct component, uint256 used to signify exchange
      */
     function setAssetExchanges(
-        IERC20[] calldata _components,
+        address[] calldata _components,
         uint256[] calldata _exchanges
     )
         external
@@ -164,7 +150,7 @@ contract ICManager is TimeLockUpgrade {
      * @param _coolOffPeriods       Array of cool off periods to correct component
      */
     function setCoolOffPeriods(
-        IERC20[] calldata _components,
+        address[] calldata _components,
         uint256[] calldata _coolOffPeriods
     )
         external
@@ -177,36 +163,43 @@ contract ICManager is TimeLockUpgrade {
      * OPERATOR ONLY: Toggle ability for passed addresses to trade from current state 
      *
      * @param _traders           Array trader addresses to toggle status
+     * @param _statuses          Booleans indicating if matching trader can trade
      */
     function updateTraderStatus(
-        address[] calldata _traders
+        address[] calldata _traders,
+        bool[] calldata _statuses
     )
         external
         onlyOperator
     {
-        indexModule.updateTraderStatus(_traders);
+        indexModule.updateTraderStatus(_traders, _statuses);
     }
 
     /**
-     * OPERATOR ONLY: Toggle whether anyone can trade, bypassing the traderAllowList 
+     * OPERATOR ONLY: Toggle whether anyone can trade, bypassing the traderAllowList
+     *
+     * @param _status           Boolean indicating if anyone can trade
      */
-    function updateAnyoneTrade() external onlyOperator {
-        indexModule.updateAnyoneTrade();
+    function updateAnyoneTrade(bool _status) external onlyOperator {
+        indexModule.updateAnyoneTrade(_status);
     }
 
     /**
      * Accrue fees from streaming fee module and transfer tokens to operator / methodologist addresses based on fee split
      */
-    function accrueFee() public {
+    function accrueFeeAndDistribute() public {
         feeModule.accrueFee(setToken);
 
         uint256 setTokenBalance = setToken.balanceOf(address(this));
 
         uint256 operatorTake = setTokenBalance.preciseMul(operatorFeeSplit);
+        uint256 methodologistTake = setTokenBalance.sub(operatorTake);
 
         setToken.transfer(operator, operatorTake);
 
-        setToken.transfer(methodologist, setTokenBalance.sub(operatorTake));
+        setToken.transfer(methodologist, methodologistTake);
+
+        emit FeesAccrued(setTokenBalance, operatorTake, methodologistTake);
     }
 
     /**
@@ -215,17 +208,8 @@ contract ICManager is TimeLockUpgrade {
      *
      * @param _newManager           New manager address
      */
-    function updateManager(address _newManager) external onlyOperatorOrMethodologist {
-        address nonCaller = _getNonCaller();
-
-        bytes32 expectedHash = keccak256(abi.encodePacked(_newManager, nonCaller));
-
-        if (expectedHash == proposedManagerHash) {
-            setToken.setManager(_newManager);
-            proposedManagerHash = bytes32(0);
-        } else {
-            proposedManagerHash = keccak256(abi.encodePacked(_newManager, msg.sender));
-        }
+    function updateManager(address _newManager) external mutualUpgrade(operator, methodologist) {
+        setToken.setManager(_newManager);
     }
 
     /**
@@ -276,17 +260,8 @@ contract ICManager is TimeLockUpgrade {
      *
      * @param _newFeeRecipient           New fee recipient address
      */
-    function updateFeeRecipient(address _newFeeRecipient) external onlyOperatorOrMethodologist {
-        address nonCaller = _getNonCaller();
-
-        bytes32 expectedHash = keccak256(abi.encodePacked(_newFeeRecipient, nonCaller));
-
-        if (expectedHash == proposedFeeRecipientHash) {
-            feeModule.updateFeeRecipient(setToken, _newFeeRecipient);
-            proposedFeeRecipientHash = bytes32(0);
-        } else {
-            proposedFeeRecipientHash = keccak256(abi.encodePacked(_newFeeRecipient, msg.sender));
-        }
+    function updateFeeRecipient(address _newFeeRecipient) external mutualUpgrade(operator, methodologist) {
+        feeModule.updateFeeRecipient(setToken, _newFeeRecipient);
     }
 
     /**
@@ -295,24 +270,15 @@ contract ICManager is TimeLockUpgrade {
      *
      * @param _newFeeSplit           New fee split percentage
      */
-    function updateFeeSplit(uint256 _newFeeSplit) external onlyOperatorOrMethodologist {    
+    function updateFeeSplit(uint256 _newFeeSplit) external mutualUpgrade(operator, methodologist) {    
         require(
             _newFeeSplit <= PreciseUnitMath.preciseUnit(),
             "Operator Fee Split must be less than 1e18"
         );
 
-        address nonCaller = _getNonCaller();
-
-        bytes32 expectedHash = keccak256(abi.encodePacked(_newFeeSplit, nonCaller));
-
-        if (expectedHash == proposedFeeSplitHash) {
-            // Accrue fee to operator and methodologist prior to new fee split
-            accrueFee();
-            operatorFeeSplit = _newFeeSplit;
-            proposedFeeSplitHash = bytes32(0);
-        } else {
-            proposedFeeSplitHash = keccak256(abi.encodePacked(_newFeeSplit, msg.sender));
-        }
+        // Accrue fee to operator and methodologist prior to new fee split
+        accrueFeeAndDistribute();
+        operatorFeeSplit = _newFeeSplit;
     }
 
     /**
@@ -348,22 +314,7 @@ contract ICManager is TimeLockUpgrade {
      *
      * @param _newTimeLockPeriod           New timelock period in seconds
      */
-    function setTimeLockPeriod(uint256 _newTimeLockPeriod) external override onlyOperatorOrMethodologist {
-        address nonCaller = _getNonCaller();
-
-        bytes32 expectedHash = keccak256(abi.encodePacked(_newTimeLockPeriod, nonCaller));
-
-        if (expectedHash == proposedTimeLockPeriodHash) {
-            timeLockPeriod = _newTimeLockPeriod;
-            proposedTimeLockPeriodHash = bytes32(0);
-        } else {
-            proposedTimeLockPeriodHash = keccak256(abi.encodePacked(_newTimeLockPeriod, msg.sender));
-        }
-    }
-
-    /* ============ Internal Functions ============ */
-
-    function _getNonCaller() internal view returns(address) {
-        return msg.sender == operator ? methodologist : operator;
+    function setTimeLockPeriod(uint256 _newTimeLockPeriod) external override mutualUpgrade(operator, methodologist) {
+        timeLockPeriod = _newTimeLockPeriod;
     }
 }
